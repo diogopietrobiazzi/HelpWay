@@ -1,0 +1,80 @@
+// src/styles/conta.ts
+import { StyleSheet } from 'react-native';
+import { colors, fonts } from './index';
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  scroll: {
+    paddingHorizontal: 16,
+    paddingTop: 32,
+    paddingBottom: 16,
+  },
+  profileCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  profileText: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  profileName: {
+    fontSize: fonts.sizes.h2,
+    fontWeight: fonts.weights.bold,
+    color: '#fff',
+  },
+  profileEmail: {
+    fontSize: fonts.sizes.body,
+    color: '#fff',
+    marginTop: 4,
+  },
+  menuSection: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderColor: colors.border,
+  },
+  menuTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  menuTitle: {
+    fontSize: fonts.sizes.body,
+    color: colors.text,
+  },
+  menuSubtitle: {
+    fontSize: fonts.sizes.small,
+    color: colors.textLight,
+    marginTop: 4,
+  },
+  sectionHeader: {
+    marginLeft: 16,
+    marginBottom: 8,
+    fontSize: fonts.sizes.h2,
+    fontWeight: fonts.weights.bold,
+    color: colors.text,
+  },
+  colors: {
+    icon: colors.primary,
+  },
+  footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
