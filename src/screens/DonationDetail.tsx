@@ -16,7 +16,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'DonationDetail'>;
 
 export default function DonationDetailScreen({ route, navigation }: Props) {
   const { donation } = route.params;
-
+  function handleLogin() {
+  navigation.replace('DonationPay', { donation });
+}
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Voltar */}
@@ -46,7 +48,7 @@ export default function DonationDetailScreen({ route, navigation }: Props) {
       </Text>
 
       {/* Botão Doar Agora */}
-      <PrimaryButton title="Doar Agora" onPress={() => { /* lógica de doação */ }} />
+      <PrimaryButton title="Doar Agora" onPress={handleLogin} />
 
       {/* Barra de progresso */}
       <View style={styles.progressContainer}>

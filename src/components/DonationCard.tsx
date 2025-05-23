@@ -1,55 +1,63 @@
+// src/components/DonationCard.tsx
+
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import ProgressBar from './ProgressBar';
 
 type Props = {
   imageUri: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   raised: number;
   goal: number;
 };
 
-export default function DonationCard({ imageUri, title, subtitle, raised, goal }: Props) {
-  const pct = Math.min(1, raised / goal);
-
+const DonationCard: React.FC<Props> = ({ imageUri, title, subtitle, raised, goal }) => {
   return (
     <View style={styles.card}>
       <Image source={{ uri: imageUri }} style={styles.image} />
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Image
-            source={require('../../assets/msf-logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-            />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
-          </View>
-        </View>
-        <ProgressBar progress={pct} />
-        <Text style={styles.amount}>
-          {`${Math.round(pct * 100)}%   R$ ${raised.toLocaleString('pt-BR')} de R$ ${goal.toLocaleString('pt-BR')}`}
+      <View style={styles.info}>
+        <Text style={styles.title}>{title}</Text>
+        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        <Text style={styles.progress}>
+          R$ {raised} de R$ {goal}
         </Text>
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   card: {
+    flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    padding: 10,
     marginVertical: 8,
-    overflow: 'hidden',
-    elevation: 3,
+    borderRadius: 8,
+    elevation: 2,
   },
-  image: { width: '100%', height: 150 },
-  content: { padding: 12 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  logo: { width: 40, height: 40, marginRight: 8 },
-  title: { fontWeight: 'bold', fontSize: 14 },
-  subtitle: { fontSize: 12, color: '#555', marginTop: 2 },
-  amount: { fontSize: 12, color: '#333', marginTop: 4 },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  info: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  progress: {
+    fontSize: 12,
+    marginTop: 4,
+    color: '#2D4BFF',
+  },
 });
+
+export default DonationCard;

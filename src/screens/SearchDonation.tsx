@@ -1,90 +1,137 @@
-import React from 'react';
-import { SafeAreaView, ScrollView, View, Text, TouchableOpacity } from 'react-native';
+// src/screens/SearchDonationScreen.tsx
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import * as NavigationBar from 'expo-navigation-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Feather } from '@expo/vector-icons';
 
-import { RootStackParamList } from '../navigation';
-import styles from '../styles/conta';
+import SearchBar from '../components/SearchBar';
+import FilterButton from '../components/FilterButton';
+import PrimaryButton from '../components/PrimaryButton';
+import SegmentControl from '../components/SegmentControl';
+import DonationCard from '../components/DonationCard';
 import TabBar from '../components/TabBar';
 
-type NavProp = NativeStackNavigationProp<RootStackParamList, 'Conta'>;
+import { globals } from '../styles';
+import searchStyles from '../styles/searchDonation';
+import { useDonations, Donation } from '../context/DonationsContext';
+import { RootStackParamList } from '../navigation';
 
-export default function ContaScreen() {
+// Tipagem para navigation
+type NavProp = NativeStackNavigationProp<RootStackParamList, 'SearchDonation'>;
+
+export default function SearchDonationScreen() {
+  const insets = useSafeAreaInsets();
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'REGIONAL' | 'NACIONAL' | 'MUNDIAL'>('REGIONAL');
   const navigation = useNavigation<NavProp>();
+  const { donations } = useDonations();
+
+  useEffect(() => {
+    StatusBar.setHidden(true);
+    if (Platform.OS === 'android') {
+      NavigationBar.setVisibilityAsync('hidden');
+      NavigationBar.setBackgroundColorAsync('#2D4BFF');
+    }
+  }, []);
+
+function renderItem({ item }: { item: Donation }) {
+  return (
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate('DonationDetail', { donation: item })
+      }
+    >
+      <DonationCard
+        imageUri={item.imageUri} // <-- Corrigido aqui
+        title={item.title}
+        subtitle={item.subtitle}
+        raised={item.raised}
+        goal={item.goal}
+      />
+    </TouchableOpacity>
+  );
+}
+
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Cabeçalho de perfil */}
-        <View style={styles.profileCard}>
-          <Feather name="user" size={48} color="#fff" />
-          <View style={styles.profileText}>
-            <Text style={styles.profileName}>Aluno UTFPR</Text>
-            <Text style={styles.profileEmail}>aluno@utfpr.com</Text>
-          </View>
-          <Feather name="edit-2" size={20} color="#fff" />
+    <SafeAreaView style={[globals.container, { paddingTop: insets.top }]}>
+      <KeyboardAvoidingView
+        style={searchStyles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {/* Cabeçalho de busca */}
+        <View style={searchStyles.searchRow}>
+          <SearchBar value={search} onChangeText={setSearch} />
+          <FilterButton onPress={() => {}} />
         </View>
 
-        {/* Menu principal */}
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => {/* editar conta */}}>
-            <Feather name="user" size={24} color={styles.colors.icon} />
-            <View style={styles.menuTextContainer}>
-              <Text style={styles.menuTitle}>Minha Conta</Text>
-              <Text style={styles.menuSubtitle}>Faça modificações na sua conta</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color={styles.colors.icon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={() => {/* histórico */}}>
-            <Feather name="clock" size={24} color={styles.colors.icon} />
-            <View style={styles.menuTextContainer}>
-              <Text style={styles.menuTitle}>Histórico de Doações</Text>
-              <Text style={styles.menuSubtitle}>Veja o histórico de doações</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color={styles.colors.icon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={() => {/* certificados */}}>
-            <Feather name="award" size={24} color={styles.colors.icon} />
-            <View style={styles.menuTextContainer}>
-              <Text style={styles.menuTitle}>Certificados</Text>
-              <Text style={styles.menuSubtitle}>Veja os certificados de doações</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color={styles.colors.icon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={() => {/* sair */}}>
-            <Feather name="log-out" size={24} color={styles.colors.icon} />
-            <Text style={[styles.menuTitle, { flex: 1 }]}>Sair da Conta</Text>
-            <Feather name="chevron-right" size={20} color={styles.colors.icon} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Seção Mais */}
-        <Text style={styles.sectionHeader}>Mais</Text>
-        <View style={styles.menuSection}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => navigation.navigate('AddDonation')}
-          >
-            <Feather name="plus-circle" size={24} color={styles.colors.icon} />
-            <Text style={[styles.menuTitle, { marginLeft: 12 }]}>
-              Adicionar Doação
+        {/* Cartão principal */}
+        <View style={searchStyles.card}>
+          {/* Linha 51 corrigida: PrimaryButton corretamente importado e utilizado */}
+          <PrimaryButton title="Doar Agora" onPress={() => {}} />
+          <View style={searchStyles.cardContent}>
+            <Text style={searchStyles.heading}>Lorem ipsum</Text>
+            <Text style={searchStyles.desc}>
+              Lorem ipsum dolor sit amet. Non saepe voluptas ex repellendus
+              blanditiis in dolorem dolore ea autem illum qui cumque Quis et
+              minus possimus. Aut labore placeat est omnis maxime aut totam
+              sint.
             </Text>
-          </TouchableOpacity>
+          </View>
         </View>
-      </ScrollView>
 
-      {/* TabBar no rodapé */}
-      <TabBar
-        tabs={[
-          { icon: 'search', label: 'DESCUBRA', onPress: () => navigation.navigate('SearchDonation') },
-          { icon: 'map-pin', label: 'MAPA', onPress: () => navigation.navigate('SearchDonation') },
-          { icon: 'user', label: 'CONTA', onPress: () => {} },
-        ]}
-      />
+        {/* Segment Control */}
+        <SegmentControl
+          options={['REGIONAL', 'NACIONAL', 'MUNDIAL']}
+          selected={filter}
+          onSelect={(value) => setFilter(value as any)}
+        />
+
+        {/* Lista de doações */}
+        {/* Linha 54 corrigida: FlatList recebe corretamente renderItem */}
+        <FlatList
+          data={donations}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={searchStyles.listContent}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+        />
+
+        {/* TabBar */}
+        <TabBar
+          tabs={[
+            {
+              icon: 'search',
+              label: 'DESCUBRA',
+              onPress: () => navigation.navigate('SearchDonation'),
+            },
+            {
+              icon: 'map-pin',
+              label: 'MAPA',
+              onPress: () => navigation.navigate('Map'),
+            },
+            {
+              icon: 'user',
+              label: 'CONTA',
+              onPress: () => navigation.navigate('Conta'),
+            },
+          ]}
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
-);
+  );
 }

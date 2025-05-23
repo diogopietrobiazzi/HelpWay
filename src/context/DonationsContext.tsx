@@ -1,47 +1,47 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+// src/context/DonationsContext.tsx
+
+import React, { createContext, useContext, useState } from 'react';
 
 export type Donation = {
   id: string;
-  imageSource: any; // ImageSourcePropType
   title: string;
-  subtitle: string;
+  subtitle?: string;
   raised: number;
   goal: number;
+  imageUri: string; // <-- ADICIONADO AQUI
 };
 
 type DonationsContextType = {
   donations: Donation[];
-  addDonation: (d: Omit<Donation, 'id'>) => void;
-  removeDonation: (id: string) => void;
 };
 
-const DonationsContext = createContext<DonationsContextType | undefined>(undefined);
+const DonationsContext = createContext<DonationsContextType>({ donations: [] });
 
-export function DonationsProvider({ children }: { children: ReactNode }) {
+export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [donations, setDonations] = useState<Donation[]>([
-    // valor inicial opcional
+    {
+      id: '1',
+      title: 'Ajude o RS',
+      subtitle: 'Enchentes no Sul do Brasil',
+      raised: 3000,
+      goal: 10000,
+      imageUri: 'https://via.placeholder.com/150', // exemplo de imagem remota
+    },
+    {
+      id: '2',
+      title: 'Ajuda Médica',
+      subtitle: 'Médicos sem Fronteiras',
+      raised: 5000,
+      goal: 15000,
+      imageUri: 'https://via.placeholder.com/150', // ou use require('../../assets/alguma.png')
+    },
   ]);
 
-  function addDonation(d: Omit<Donation, 'id'>) {
-    setDonations(prev => [
-      ...prev,
-      { id: Date.now().toString(), ...d },
-    ]);
-  }
-
-  function removeDonation(id: string) {
-    setDonations(prev => prev.filter(d => d.id !== id));
-  }
-
   return (
-    <DonationsContext.Provider value={{ donations, addDonation, removeDonation }}>
+    <DonationsContext.Provider value={{ donations }}>
       {children}
     </DonationsContext.Provider>
   );
-}
+};
 
-export function useDonations() {
-  const ctx = useContext(DonationsContext);
-  if (!ctx) throw new Error('useDonations must be inside DonationsProvider');
-  return ctx;
-}
+export const useDonations = () => useContext(DonationsContext);

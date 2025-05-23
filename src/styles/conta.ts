@@ -1,4 +1,3 @@
-// src/styles/conta.ts
 import { StyleSheet } from 'react-native';
 import { colors, fonts } from './index';
 
@@ -67,9 +66,6 @@ export default StyleSheet.create({
     fontSize: fonts.sizes.h2,
     fontWeight: fonts.weights.bold,
     color: colors.text,
-  },
-  colors: {
-    icon: colors.primary,
   },
   footer: {
     position: 'absolute',

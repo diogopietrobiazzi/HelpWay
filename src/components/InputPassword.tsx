@@ -43,6 +43,8 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     marginBottom: 10,
+    width: 355,
+    height:65
   },
   icon: {
     color: '#888',
