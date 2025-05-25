@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native'; // <-- adicione Pressable
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Input from '../components/Input';
 import InputPassword from '../components/InputPassword';
@@ -16,6 +16,10 @@ export default function LoginScreen({ navigation }: Props) {
 
   function handleLogin() {
     navigation.replace('SearchDonation');
+  }
+
+  function goToRegister() {
+    navigation.navigate('Register');
   }
 
   return (
@@ -42,8 +46,10 @@ export default function LoginScreen({ navigation }: Props) {
       <GoogleButton />
 
       <View style={styles.registerContainer}>
-        <Text>Não tem login ainda ? </Text>
-        <Text style={styles.register}>Registrar</Text>
+        <Text>Não tem login ainda? </Text>
+        <Pressable onPress={goToRegister}>
+          <Text style={styles.register}>Registrar</Text>
+        </Pressable>
       </View>
     </View>
   );
