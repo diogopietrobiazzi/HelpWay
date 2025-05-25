@@ -1,6 +1,5 @@
-// src/screens/AddDonationScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Button, StyleSheet, ScrollView, ImageSourcePropType, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -32,9 +31,8 @@ export default function AddDonationScreen() {
       subtitle: responsible,
       raised: 0,
       goal: Number(need),
-      imageSource: require('../../assets/doctors1.png'),
-    };
-    // opcionalmente passar types em DonationType
+      imageUri: Image.resolveAssetSource(require('../../assets/doctors1.png')).uri,
+};
     addDonation(newDonation);
     navigation.goBack();
   }

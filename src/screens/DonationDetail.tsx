@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import {View,Text,Image, ScrollView,TouchableOpacity,} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
 import PrimaryButton from '../components/PrimaryButton';

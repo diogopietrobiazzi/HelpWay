@@ -1,29 +1,24 @@
-// src/components/Input.tsx
 import React from 'react';
-import { TextInput, View, StyleSheet } from 'react-native';
+import { TextInput, View, StyleSheet, TextInputProps } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-interface Props {
+interface Props extends TextInputProps {
   icon: string;
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
 }
 
-export default function Input({ icon, placeholder, value, onChangeText }: Props) {
+export default function Input({ icon, style, ...rest }: Props) {
   return (
     <View style={styles.container}>
       <Ionicons name={icon as any} size={20} style={styles.icon} />
       <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
+        style={[styles.input, style]}
         placeholderTextColor="#aaa"
+        {...rest} 
       />
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

@@ -41,6 +41,6 @@ export default StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 80, // espaço para a TabBar
+    paddingBottom: 80, 
   },
 });

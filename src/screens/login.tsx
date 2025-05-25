@@ -6,7 +6,7 @@ import InputPassword from '../components/InputPassword';
 import Button from '../components/Button';
 import GoogleButton from '../components/GoogleButton';
 import { RootStackParamList } from '../navigation';
-import styles from '../styles/login';  //  import dos estilos
+import styles from '../styles/login';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 

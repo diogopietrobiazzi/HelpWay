@@ -1,4 +1,3 @@
-// src/components/InputPassword.tsx
 import React, { useState } from 'react';
 import { TextInput, View, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';

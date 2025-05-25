@@ -1,5 +1,3 @@
-// src/context/DonationsContext.tsx
-
 import React, { createContext, useContext, useState } from 'react';
 
 export type Donation = {
@@ -8,14 +6,18 @@ export type Donation = {
   subtitle?: string;
   raised: number;
   goal: number;
-  imageUri: string; // <-- ADICIONADO AQUI
+  imageUri: string;
 };
 
 type DonationsContextType = {
   donations: Donation[];
+  addDonation: (donation: Omit<Donation, 'id'>) => void;
 };
 
-const DonationsContext = createContext<DonationsContextType>({ donations: [] });
+const DonationsContext = createContext<DonationsContextType>({
+  donations: [],
+  addDonation: () => {}, // fallback vazio
+});
 
 export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [donations, setDonations] = useState<Donation[]>([
@@ -25,7 +27,7 @@ export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       subtitle: 'Enchentes no Sul do Brasil',
       raised: 3000,
       goal: 10000,
-      imageUri: 'https://via.placeholder.com/150', // exemplo de imagem remota
+      imageUri: 'https://via.placeholder.com/150',
     },
     {
       id: '2',
@@ -33,12 +35,20 @@ export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       subtitle: 'Médicos sem Fronteiras',
       raised: 5000,
       goal: 15000,
-      imageUri: 'https://via.placeholder.com/150', // ou use require('../../assets/alguma.png')
+      imageUri: 'https://via.placeholder.com/150',
     },
   ]);
 
+  const addDonation = (donation: Omit<Donation, 'id'>) => {
+    const newDonation: Donation = {
+      id: Math.random().toString(),
+      ...donation,
+    };
+    setDonations(prev => [...prev, newDonation]);
+  };
+
   return (
-    <DonationsContext.Provider value={{ donations }}>
+    <DonationsContext.Provider value={{ donations, addDonation }}>
       {children}
     </DonationsContext.Provider>
   );

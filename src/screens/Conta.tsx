@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../navigation';
 import styles from '../styles/conta';
-import { colors } from '../styles'; // ✅ Correto
+import { colors } from '../styles'; 
 import TabBar from '../components/TabBar';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'Conta'>;
@@ -80,7 +80,6 @@ export default function ContaScreen() {
         </View>
       </ScrollView>
 
-      {/* TabBar */}
       <View style={{ paddingBottom: insets.bottom }}>
         <TabBar
           tabs={[

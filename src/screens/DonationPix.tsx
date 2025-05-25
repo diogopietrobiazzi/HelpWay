@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  View, Text, Image, TouchableOpacity, SafeAreaView,
-  StatusBar, Platform, Clipboard, Alert
-} from 'react-native';
+import {View, Text, Image, TouchableOpacity, SafeAreaView,StatusBar, Platform, Clipboard, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/DonationPix';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

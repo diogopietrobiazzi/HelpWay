@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
+import { View, Text, KeyboardAvoidingView,Platform,ScrollView,TouchableWithoutFeedback,Keyboard,} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Input from '../components/Input';
 import InputPassword from '../components/InputPassword';
@@ -60,7 +52,7 @@ export default function Register({ navigation }: Props) {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} // ajuste fino aqui se necessário
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} 
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView

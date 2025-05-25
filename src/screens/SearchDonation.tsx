@@ -1,18 +1,6 @@
-// src/screens/SearchDonationScreen.tsx
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  TouchableOpacity,
-} from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { View,  Text,FlatList, KeyboardAvoidingView, Platform, StatusBar,TouchableOpacity,} from 'react-native';
+import { SafeAreaView,useSafeAreaInsets,} from 'react-native-safe-area-context';
 import * as NavigationBar from 'expo-navigation-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,7 +17,6 @@ import searchStyles from '../styles/searchDonation';
 import { useDonations, Donation } from '../context/DonationsContext';
 import { RootStackParamList } from '../navigation';
 
-// Tipagem para navigation
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'SearchDonation'>;
 
 export default function SearchDonationScreen() {
@@ -55,7 +42,7 @@ function renderItem({ item }: { item: Donation }) {
       }
     >
       <DonationCard
-        imageUri={item.imageUri} // <-- Corrigido aqui
+        imageUri={item.imageUri}
         title={item.title}
         subtitle={item.subtitle}
         raised={item.raised}
@@ -72,15 +59,12 @@ function renderItem({ item }: { item: Donation }) {
         style={searchStyles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Cabeçalho de busca */}
         <View style={searchStyles.searchRow}>
           <SearchBar value={search} onChangeText={setSearch} />
           <FilterButton onPress={() => {}} />
         </View>
 
-        {/* Cartão principal */}
         <View style={searchStyles.card}>
-          {/* Linha 51 corrigida: PrimaryButton corretamente importado e utilizado */}
           <PrimaryButton title="Doar Agora" onPress={() => {}} />
           <View style={searchStyles.cardContent}>
             <Text style={searchStyles.heading}>Lorem ipsum</Text>
@@ -93,15 +77,12 @@ function renderItem({ item }: { item: Donation }) {
           </View>
         </View>
 
-        {/* Segment Control */}
         <SegmentControl
           options={['REGIONAL', 'NACIONAL', 'MUNDIAL']}
           selected={filter}
           onSelect={(value) => setFilter(value as any)}
         />
 
-        {/* Lista de doações */}
-        {/* Linha 54 corrigida: FlatList recebe corretamente renderItem */}
         <FlatList
           data={donations}
           keyExtractor={(item) => item.id}
@@ -111,7 +92,6 @@ function renderItem({ item }: { item: Donation }) {
           keyboardShouldPersistTaps="handled"
         />
 
-        {/* TabBar */}
         <TabBar
           tabs={[
             {

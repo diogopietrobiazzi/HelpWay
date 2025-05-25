@@ -1,5 +1,3 @@
-// src/styles/index.ts
-
 import { StyleSheet } from 'react-native';
 
 // 1. Cores

@@ -120,7 +120,7 @@ export default StyleSheet.create({
     color: '#4A4A4A',
   },
   donateButton: {
-    backgroundColor: '#4F6AF6', // Blue color from the image
+    backgroundColor: '#4F6AF6', 
     borderRadius: 30,
     paddingVertical: 18,
     alignItems: 'center',

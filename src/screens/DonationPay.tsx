@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  View, Text, TextInput, TouchableOpacity, SafeAreaView, 
-  StatusBar, Platform 
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView,StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/DonationPay';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

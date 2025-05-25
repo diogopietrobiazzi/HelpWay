@@ -16,7 +16,7 @@ export default function InputDate({ icon, placeholder, value, onChange }: Props)
   const onChangeDate = (_event: any, selectedDate?: Date) => {
     setShowPicker(Platform.OS === 'ios'); // iOS mantém o picker aberto
     if (selectedDate) {
-      const formatted = selectedDate.toISOString().split('T')[0]; // Formato: YYYY-MM-DD
+      const formatted = selectedDate.toISOString().split('T')[0]; // Formato: ano / mes / dia
       onChange(formatted);
     }
   };

@@ -1,4 +1,3 @@
-// src/navigation/index.tsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/login';
@@ -23,8 +22,8 @@ export type DonationType = {
 
 export type RootStackParamList = {
   Login: undefined;
-  SearchDonation: undefined;        // ⬅️ blueprint exata da rota
-  DonationDetail: { donation: DonationType }; // Adicione esta linha
+  SearchDonation: undefined;        //  blueprint exata da rota
+  DonationDetail: { donation: DonationType };
   Conta: undefined;
   AddDonation: undefined;
   Register: undefined;
@@ -37,10 +36,10 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function Navigation() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>       
+    <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Map" component={Map} />
     <Stack.Screen name="Register" component={Register} />
-    <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="SearchDonation" component={SearchDonation} />
     <Stack.Screen name="DonationDetail" component={DonationDetail} />
     <Stack.Screen name="Conta" component={Conta} />

@@ -1,5 +1,3 @@
-// src/styles/login.ts
-
 import { StyleSheet } from 'react-native';
 import { colors, fonts } from './index';
 
