@@ -3,6 +3,7 @@ import { SafeAreaView, ScrollView, View, Text, TouchableOpacity } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../navigation';
@@ -76,6 +77,10 @@ export default function ContaScreen() {
           <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AddDonation')}>
             <Feather name="plus-circle" size={24} color={colors.primary} />
             <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Adicionar Doação</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Login')}>
+            <AntDesign name="close" size={24} color={colors.primary} />
+            <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Sair</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

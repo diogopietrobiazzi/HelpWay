@@ -15,19 +15,80 @@ export default StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
   },
+  input: {
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+  },
   forgot: {
     color: colors.textLight,
     marginBottom: 20,
     marginTop: -10,
     textAlign: 'right',
   },
+  button: {
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  or: {
+    textAlign: 'center',
+    marginVertical: 16,
+    color: '#999',
+  },
+  googleButton: {
+    flexDirection: 'row',
+    backgroundColor: '#D9D9D9',
+    paddingVertical: 12,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  googleText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   registerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 20,
   },
-  register: {
+   register: {
     color: colors.primary,
     fontWeight: fonts.weights.bold,
+  },  
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    width: '85%',
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: fonts.sizes.h2 || 20,
+    fontWeight: fonts.weights.bold,
+    marginBottom: 16,
+    color: colors.primary,
+    textAlign: 'center',
+  },
+
 });

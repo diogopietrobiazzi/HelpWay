@@ -37,4 +37,7 @@ export default StyleSheet.create({
   marginBottom: 8,
   alignSelf: 'flex-start',
 },
+Botton2:{
+  backgroundColor: 'red',
+}
 });

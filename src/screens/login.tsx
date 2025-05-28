@@ -1,26 +1,63 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable } from 'react-native'; // <-- adicione Pressable
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Input from '../components/Input';
-import InputPassword from '../components/InputPassword';
-import Button from '../components/Button';
-import GoogleButton from '../components/GoogleButton';
-import { RootStackParamList } from '../navigation';
+import {Image, View, Text, TouchableOpacity, Alert, Pressable, Modal, TextInput,} from 'react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/login';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+import Input from '../components/Input';
+import InputPassword from '../components/InputPassword';
 
-export default function LoginScreen({ navigation }: Props) {
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation';
+
+type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+
+WebBrowser.maybeCompleteAuthSession();
+
+const fakeUsers = [
+  { email: 'usuario@teste.com', senha: '123456' },
+  { email: 'aluno@utfpr.edu.br', senha: 'utfpr123' },
+];
+
+export default function LoginScreen() {
+  const navigation = useNavigation<NavigationProps>();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [error, setError] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
 
-  function handleLogin() {
-    navigation.replace('SearchDonation');
-  }
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: 'SEU_CLIENT_ID_DO_GOOGLE',
+  });
 
-  function goToRegister() {
+  const validarLogin = () => {
+    const user = fakeUsers.find(u => u.email === email);
+    if (!user) {
+      setError('E-mail não encontrado');
+    } else if (user.senha !== senha) {
+      setError('Senha incorreta');
+    } else {
+      setError('');
+      Alert.alert('Login realizado com sucesso!');
+      navigation.navigate('SearchDonation');
+    }
+  };
+
+  const goToRegister = () => {
     navigation.navigate('Register');
-  }
+  };
+
+  const handleSendRecovery = () => {
+    if (!recoveryEmail.includes('@')) {
+      Alert.alert('Erro', 'Digite um e-mail válido.');
+      return;
+    }
+    Alert.alert('Recuperação enviada', `Enviamos um e-mail para ${recoveryEmail}.`);
+    setModalVisible(false);
+    setRecoveryEmail('');
+  };
 
   return (
     <View style={styles.container}>
@@ -39,11 +76,29 @@ export default function LoginScreen({ navigation }: Props) {
         onChangeText={setSenha}
       />
 
-      <Text style={styles.forgot}>Esqueceu a senha ?</Text>
+      {error ? <Text style={styles.forgot}>{error}</Text> : null}
 
-      <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity onPress={() => setModalVisible(true)}>
+        <Text style={styles.forgot}>Esqueceu a senha?</Text>
+      </TouchableOpacity>
 
-      <GoogleButton />
+      <TouchableOpacity style={styles.button} onPress={validarLogin}>
+        <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.or}>ou</Text>
+
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => promptAsync()}
+        disabled={!request}
+      >
+        <Image
+          source={require('../../assets/google-logo.png')}
+          style={{ width: 24, height: 24, marginRight: 8 }}
+        />
+        <Text style={styles.googleText}>Google</Text>
+      </TouchableOpacity>
 
       <View style={styles.registerContainer}>
         <Text>Não tem login ainda? </Text>
@@ -51,6 +106,35 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.register}>Registrar</Text>
         </Pressable>
       </View>
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Recuperar Senha</Text>
+
+            <TextInput
+              placeholder="Digite seu e-mail"
+              style={styles.input}
+              value={recoveryEmail}
+              onChangeText={setRecoveryEmail}
+              keyboardType="email-address"
+            />
+
+            <TouchableOpacity style={styles.button} onPress={handleSendRecovery}>
+              <Text style={styles.buttonText}>Enviar recuperação de senha</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={[styles.forgot, { textAlign: 'center', marginTop: 10 }]}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

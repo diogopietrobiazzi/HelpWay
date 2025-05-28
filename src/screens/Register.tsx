@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import { RootStackParamList } from '../navigation';
 import styles from '../styles/register';
 import InputDate from '../components/InputDate';
+import { getBackgroundColorAsync } from 'expo-navigation-bar';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -25,6 +26,10 @@ export default function Register({ navigation }: Props) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   }
+
+  function Login() {
+    navigation.navigate('Login');
+  } 
 
   function handleLogin() {
     let valido = true;
@@ -107,6 +112,8 @@ export default function Register({ navigation }: Props) {
             <Text style={styles.forgot}>Alterar a senha</Text>
 
             <Button title="Salvar" onPress={handleLogin} />
+
+            <Button  title="Voltar" onPress={Login} />
 
             <View style={styles.registerContainer} />
           </View>
