@@ -3,7 +3,6 @@ import { SafeAreaView, ScrollView, View, Text, TouchableOpacity } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../navigation';
@@ -42,7 +41,6 @@ export default function ContaScreen() {
             <Feather name="user" size={24} color={colors.primary} />
             <View style={styles.menuTextContainer}>
               <Text style={styles.menuTitle}>Minha Conta</Text>
-              <Text style={styles.menuSubtitle}>Faça modificações na sua conta</Text>
             </View>
             <Feather name="chevron-right" size={20} color={colors.primary} />
           </TouchableOpacity>
@@ -51,7 +49,6 @@ export default function ContaScreen() {
             <Feather name="clock" size={24} color={colors.primary} />
             <View style={styles.menuTextContainer}>
               <Text style={styles.menuTitle}>Histórico de Doações</Text>
-              <Text style={styles.menuSubtitle}>Veja o histórico de doações</Text>
             </View>
             <Feather name="chevron-right" size={20} color={colors.primary} />
           </TouchableOpacity>
@@ -60,27 +57,22 @@ export default function ContaScreen() {
             <Feather name="award" size={24} color={colors.primary} />
             <View style={styles.menuTextContainer}>
               <Text style={styles.menuTitle}>Certificados</Text>
-              <Text style={styles.menuSubtitle}>Veja os certificados de doações</Text>
             </View>
             <Feather name="chevron-right" size={20} color={colors.primary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem}  onPress={() => navigation.navigate('Login')}>
             <Feather name="log-out" size={24} color={colors.primary} />
-            <Text style={[styles.menuTitle, { flex: 1 }]}>Sair da Conta</Text>
+            <Text style={[styles.menuTitle, { flex: 1,  }, { marginHorizontal: 12,  }]}>Sair da Conta</Text>
             <Feather name="chevron-right" size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionHeader}>Mais</Text>
+        <Text style={styles.sectionHeader}>DOADOR</Text>
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AddDonation')}>
             <Feather name="plus-circle" size={24} color={colors.primary} />
             <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Adicionar Doação</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Login')}>
-            <AntDesign name="close" size={24} color={colors.primary} />
-            <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Sair</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

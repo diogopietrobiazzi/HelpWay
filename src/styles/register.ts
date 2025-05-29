@@ -39,5 +39,27 @@ export default StyleSheet.create({
 },
 Botton2:{
   backgroundColor: 'red',
-}
+},
+profileImage: {
+  width: 100,
+  height: 100,
+  borderRadius: 50,
+  alignSelf: 'center',
+  marginBottom: 20,
+},
+imagePlaceholder: {
+  width: 100,
+  height: 100,
+  borderRadius: 50,
+  borderWidth: 1,
+  borderColor: '#ccc',
+  justifyContent: 'center',
+  alignItems: 'center',
+  alignSelf: 'center',
+  marginBottom: 20,
+},
+imagePlaceholderText: {
+  color: '#888',
+},
+
 });

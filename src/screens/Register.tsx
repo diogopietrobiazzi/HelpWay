@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, KeyboardAvoidingView,Platform,ScrollView,TouchableWithoutFeedback,Keyboard,} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {View,Text,KeyboardAvoidingView,Platform,ScrollView,TouchableWithoutFeedback,Keyboard,Image,TouchableOpacity,} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
+
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation';
+
 import Input from '../components/Input';
 import InputPassword from '../components/InputPassword';
 import Button from '../components/Button';
-import { RootStackParamList } from '../navigation';
-import styles from '../styles/register';
 import InputDate from '../components/InputDate';
-import { getBackgroundColorAsync } from 'expo-navigation-bar';
+
+import { useAuth } from '../context/AuthContext';
+import styles from '../styles/register';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -18,18 +23,47 @@ export default function Register({ navigation }: Props) {
   const [nome, setNome] = useState('');
   const [usuario, setUsuario] = useState('');
   const [nascimento, setNascimento] = useState('');
+  const [imagemUri, setImagemUri] = useState<string | null>(null);
 
   const [emailErro, setEmailErro] = useState('');
   const [senhaErro, setSenhaErro] = useState('');
+  const [tecladoAtivo, setTecladoAtivo] = useState(false);
+
+  const { setUser } = useAuth();
+
+  useEffect(() => {
+    const mostrar = Keyboard.addListener('keyboardDidShow', () => setTecladoAtivo(true));
+    const esconder = Keyboard.addListener('keyboardDidHide', () => setTecladoAtivo(false));
+
+    return () => {
+      mostrar.remove();
+      esconder.remove();
+    };
+  }, []);
 
   function validarEmail(email: string): boolean {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   }
 
-  function Login() {
-    navigation.navigate('Login');
-  } 
+  async function selecionarImagem() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permissão para acessar imagens negada.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+
+    if (!result.canceled) {
+      setImagemUri(result.assets[0].uri);
+    }
+  }
 
   function handleLogin() {
     let valido = true;
@@ -49,6 +83,14 @@ export default function Register({ navigation }: Props) {
     }
 
     if (valido) {
+      setUser({
+        name: nome,
+        email: email,
+        nascimento: new Date(nascimento),
+        password: senha,
+        imagem: imagemUri || '',
+      });
+
       navigation.replace('SearchDonation');
     }
   }
@@ -57,15 +99,31 @@ export default function Register({ navigation }: Props) {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} 
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
+  scrollEnabled={tecladoAtivo}
+  contentContainerStyle={{ flexGrow: 1 }}
+  keyboardShouldPersistTaps="handled"
+>
+
           <View style={styles.container}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ alignSelf: 'flex-start', marginTop: 40 }}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+
             <Text style={styles.title}>Cadastrar</Text>
+
+            <TouchableOpacity onPress={selecionarImagem} style={{ alignSelf: 'center', marginBottom: 20 }}>
+              {imagemUri ? (
+                <Image source={{ uri: imagemUri }} style={styles.profileImage} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="person-circle-outline" size={64} color="#ccc" />
+                </View>
+              )}
+            </TouchableOpacity>
 
             <Input
               icon="person"
@@ -109,13 +167,7 @@ export default function Register({ navigation }: Props) {
             />
             {senhaErro ? <Text style={styles.error}>{senhaErro}</Text> : null}
 
-            <Text style={styles.forgot}>Alterar a senha</Text>
-
             <Button title="Salvar" onPress={handleLogin} />
-
-            <Button  title="Voltar" onPress={Login} />
-
-            <View style={styles.registerContainer} />
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>

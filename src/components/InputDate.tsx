@@ -14,9 +14,9 @@ export default function InputDate({ icon, placeholder, value, onChange }: Props)
   const [showPicker, setShowPicker] = useState(false);
 
   const onChangeDate = (_event: any, selectedDate?: Date) => {
-    setShowPicker(Platform.OS === 'ios'); // iOS mantém o picker aberto
+    setShowPicker(Platform.OS === 'ios'); 
     if (selectedDate) {
-      const formatted = selectedDate.toISOString().split('T')[0]; // Formato: ano / mes / dia
+      const formatted = selectedDate.toISOString().split('T')[0]; 
       onChange(formatted);
     }
   };
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 10,
-    color: '#888',
+    color: '#2626268F',
   },
   touchable: {
     flex: 1,

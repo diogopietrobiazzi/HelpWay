@@ -18,6 +18,7 @@ WebBrowser.maybeCompleteAuthSession();
 const fakeUsers = [
   { email: 'usuario@teste.com', senha: '123456' },
   { email: 'aluno@utfpr.edu.br', senha: 'utfpr123' },
+  { email: 'adm@t.com', senha: '123456' },
 ];
 
 export default function LoginScreen() {
@@ -69,14 +70,18 @@ export default function LoginScreen() {
         value={email}
         onChangeText={setEmail}
       />
+        {error === 'E-mail não encontrado' && (
+          <Text style={styles.error}>{error}</Text>
+      )}
 
       <InputPassword
-        placeholder="Sua senha"
-        value={senha}
-        onChangeText={setSenha}
-      />
-
-      {error ? <Text style={styles.forgot}>{error}</Text> : null}
+          placeholder="Sua senha"
+          value={senha}
+          onChangeText={setSenha}
+        />
+        {error === 'Senha incorreta' && (
+          <Text style={styles.error}>{error}</Text>
+      )}
 
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <Text style={styles.forgot}>Esqueceu a senha?</Text>

@@ -40,9 +40,10 @@ export default StyleSheet.create({
     fontWeight: 'bold',
   },
   error: {
-    color: 'red',
-    marginBottom: 12,
-    textAlign: 'center',
+     color: 'red',
+  marginBottom: 8,
+  marginLeft: 10,
+  fontSize: 14,
   },
   or: {
     textAlign: 'center',
