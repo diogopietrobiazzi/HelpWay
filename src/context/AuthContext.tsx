@@ -7,6 +7,7 @@ type User = {
   nascimento: Date;
   password: string;
   imagem: string; 
+  tipo:string;
 }
 
 type AuthContextData = {

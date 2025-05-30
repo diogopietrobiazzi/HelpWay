@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
     height:65
   },
   icon: {
-    marginRight: 10,
+    marginRight: 11, 
+    marginLeft: 8,
     color: '#2626268F',
   },
   touchable: {

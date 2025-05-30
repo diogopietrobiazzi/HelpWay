@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View,Text,KeyboardAvoidingView,Platform,ScrollView,TouchableWithoutFeedback,Keyboard,Image,TouchableOpacity,} from 'react-native';
+import {  View,  Text,  KeyboardAvoidingView,  Platform,  ScrollView,  TouchableWithoutFeedback,  Keyboard,  Image,  TouchableOpacity,} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -21,9 +21,9 @@ export default function Register({ navigation }: Props) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [nome, setNome] = useState('');
-  const [usuario, setUsuario] = useState('');
   const [nascimento, setNascimento] = useState('');
   const [imagemUri, setImagemUri] = useState<string | null>(null);
+  const [tipoUsuario, setTipoUsuario] = useState<'doar' | 'receber' | null>(null);
 
   const [emailErro, setEmailErro] = useState('');
   const [senhaErro, setSenhaErro] = useState('');
@@ -89,6 +89,7 @@ export default function Register({ navigation }: Props) {
         nascimento: new Date(nascimento),
         password: senha,
         imagem: imagemUri || '',
+        tipo: tipoUsuario || '',
       });
 
       navigation.replace('SearchDonation');
@@ -97,75 +98,50 @@ export default function Register({ navigation }: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.flex1}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
-  scrollEnabled={tecladoAtivo}
-  contentContainerStyle={{ flexGrow: 1 }}
-  keyboardShouldPersistTaps="handled"
->
-
+          scrollEnabled={tecladoAtivo}
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ alignSelf: 'flex-start', marginTop: 40 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
 
-            <Text style={styles.title}>Cadastrar</Text>
+            <View style={styles.headerRow}>
+              <Text style={styles.title}>Cadastrar</Text>
+              <TouchableOpacity onPress={selecionarImagem}>
+                {imagemUri ? (
+                  <Image source={{ uri: imagemUri }} style={styles.profileImage} />
+                ) : (
+                  <View style={styles.imagePlaceholder}>
+                    <Ionicons name="person-circle-outline" size={64} color="#ccc" />
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity onPress={selecionarImagem} style={{ alignSelf: 'center', marginBottom: 20 }}>
-              {imagemUri ? (
-                <Image source={{ uri: imagemUri }} style={styles.profileImage} />
-              ) : (
-                <View style={styles.imagePlaceholder}>
-                  <Ionicons name="person-circle-outline" size={64} color="#ccc" />
-                </View>
-              )}
-            </TouchableOpacity>
-
-            <Input
-              icon="person"
-              placeholder="Nome Completo"
-              value={nome}
-              onChangeText={setNome}
-            />
-
-            <Input
-              icon="person-outline"
-              placeholder="Nome de Usuário"
-              value={usuario}
-              onChangeText={setUsuario}
-            />
-
-            <InputDate
-              icon="calendar"
-              placeholder="Data de Nascimento"
-              value={nascimento}
-              onChange={setNascimento}
-            />
-
-            <Input
-              icon="mail"
-              placeholder="Seu Email"
-              value={email}
-              onChangeText={setEmail}
-            />
+            <Input icon="person" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
+            <InputDate icon="calendar" placeholder="Data de Nascimento" value={nascimento} onChange={setNascimento} />
+            <Input icon="mail" placeholder="Seu Email" value={email} onChangeText={setEmail} />
             {emailErro ? <Text style={styles.error}>{emailErro}</Text> : null}
 
-            <InputPassword
-              placeholder="Sua Senha"
-              value={senha}
-              onChangeText={setSenha}
-            />
-
-            <InputPassword
-              placeholder="Confirmar Senha"
-              value={confirmarSenha}
-              onChangeText={setConfirmarSenha}
-            />
+            <InputPassword placeholder="Sua Senha" value={senha} onChangeText={setSenha} />
+            <InputPassword placeholder="Confirmar Senha" value={confirmarSenha} onChangeText={setConfirmarSenha} />
             {senhaErro ? <Text style={styles.error}>{senhaErro}</Text> : null}
+
+            <Text style={styles.subTitle}>Você deseja doar ou receber?</Text>
+              <TouchableOpacity
+                style={styles.toggleUniqueButton}
+                onPress={() => setTipoUsuario(prev => (prev === 'doar' ? 'receber' : 'doar'))}
+              >
+                <Text style={styles.toggleUniqueButtonText}>{tipoUsuario === 'doar' ? 'Doar' : 'Receber'}</Text>
+              </TouchableOpacity>
 
             <Button title="Salvar" onPress={handleLogin} />
           </View>
