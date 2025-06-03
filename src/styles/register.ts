@@ -1,4 +1,3 @@
-// styles/register.ts
 import { StyleSheet } from 'react-native';
 import { colors, fonts } from './index';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Image, View, Text, TouchableOpacity, Alert, Pressable, Modal, TextInput,} from 'react-native';
+import {  Image,  View,  Text,  TouchableOpacity,  Alert,  Pressable,  Modal,  TextInput,} from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useNavigation } from '@react-navigation/native';
@@ -11,18 +11,29 @@ import InputPassword from '../components/InputPassword';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
 
+const ImgAdm = require('../../assets/ImgAdm.png');
+
+import { useAuth } from '../context/AuthContext';
+
 type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 WebBrowser.maybeCompleteAuthSession();
 
 const fakeUsers = [
-  { email: 'usuario@teste.com', senha: '123456' },
-  { email: 'aluno@utfpr.edu.br', senha: 'utfpr123' },
-  { email: 'adm@t.com', senha: '123456' },
+  {
+    name: 'Administrador',
+    email: 'adm@t.com',
+    password: '123456',
+    nascimento: new Date('1985-06-10'),
+    imagem: Image.resolveAssetSource(ImgAdm).uri,
+    tipo: 'admin',
+  },
 ];
 
 export default function LoginScreen() {
   const navigation = useNavigation<NavigationProps>();
+  const { setUser } = useAuth();
+
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
@@ -37,10 +48,11 @@ export default function LoginScreen() {
     const user = fakeUsers.find(u => u.email === email);
     if (!user) {
       setError('E-mail não encontrado');
-    } else if (user.senha !== senha) {
+    } else if (user.password !== senha) {
       setError('Senha incorreta');
     } else {
       setError('');
+      setUser(user); 
       Alert.alert('Login realizado com sucesso!');
       navigation.navigate('SearchDonation');
     }
@@ -70,17 +82,17 @@ export default function LoginScreen() {
         value={email}
         onChangeText={setEmail}
       />
-        {error === 'E-mail não encontrado' && (
-          <Text style={styles.error}>{error}</Text>
+      {error === 'E-mail não encontrado' && (
+        <Text style={styles.error}>{error}</Text>
       )}
 
       <InputPassword
-          placeholder="Sua senha"
-          value={senha}
-          onChangeText={setSenha}
-        />
-        {error === 'Senha incorreta' && (
-          <Text style={styles.error}>{error}</Text>
+        placeholder="Sua senha"
+        value={senha}
+        onChangeText={setSenha}
+      />
+      {error === 'Senha incorreta' && (
+        <Text style={styles.error}>{error}</Text>
       )}
 
       <TouchableOpacity onPress={() => setModalVisible(true)}>

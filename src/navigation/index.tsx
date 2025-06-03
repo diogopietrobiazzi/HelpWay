@@ -9,6 +9,7 @@ import Register from '../screens/Register';
 import Map from '../screens/Map';
 import DonationPay from '../screens/DonationPay';
 import DonationPix from '../screens/DonationPix';
+import AlterarDados from '../screens/AlterarDados';
 
 export type DonationType = {
   id: string;
@@ -28,6 +29,7 @@ export type RootStackParamList = {
   AddDonation: undefined;
   Register: undefined;
   Map: undefined;
+  AlterarDados: undefined;
   DonationPix: { donationAmount: string; donationName?: string; onCancel: () => void };
   DonationPay: { donation: DonationType };
 };
@@ -46,6 +48,7 @@ export default function Navigation() {
     <Stack.Screen name="AddDonation" component={AddDonation} />
     <Stack.Screen name="DonationPix" component={DonationPix} />
     <Stack.Screen name="DonationPay" component={DonationPay} />
+    <Stack.Screen name="AlterarDados" component={AlterarDados} />
 
     </Stack.Navigator>
   );

@@ -14,14 +14,16 @@ export default StyleSheet.create({
   profileCard: {
     flexDirection: 'row',
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 35,
     padding: 20,
     alignItems: 'center',
     marginBottom: 24,
   },
   profileText: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 20,
+    paddingHorizontal: 5,  
+    marginTop: 0,
   },
   profileName: {
     fontSize: fonts.sizes.h2,
@@ -73,4 +75,17 @@ export default StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  profileImage: {
+  width: 100,
+  height: 125,
+  borderRadius: 50,
+  backgroundColor: '#fff',
+},
+profileImageLarge: {
+  width: 96,
+  height: 96,
+  borderRadius: 48,
+  backgroundColor: '#fff',
+},
+
 });

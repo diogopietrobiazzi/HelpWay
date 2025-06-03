@@ -7,7 +7,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import SearchBar from '../components/SearchBar';
 import FilterButton from '../components/FilterButton';
-import PrimaryButton from '../components/PrimaryButton';
 import SegmentControl from '../components/SegmentControl';
 import DonationCard from '../components/DonationCard';
 import TabBar from '../components/TabBar';
@@ -62,19 +61,6 @@ function renderItem({ item }: { item: Donation }) {
         <View style={searchStyles.searchRow}>
           <SearchBar value={search} onChangeText={setSearch} />
           <FilterButton onPress={() => {}} />
-        </View>
-
-        <View style={searchStyles.card}>
-          <PrimaryButton title="Doar Agora" onPress={() => {}} />
-          <View style={searchStyles.cardContent}>
-            <Text style={searchStyles.heading}>Lorem ipsum</Text>
-            <Text style={searchStyles.desc}>
-              Lorem ipsum dolor sit amet. Non saepe voluptas ex repellendus
-              blanditiis in dolorem dolore ea autem illum qui cumque Quis et
-              minus possimus. Aut labore placeat est omnis maxime aut totam
-              sint.
-            </Text>
-          </View>
         </View>
 
         <SegmentControl
