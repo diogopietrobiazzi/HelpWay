@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import {  SafeAreaView,  ScrollView,  View,  Text,  TouchableOpacity,  Image,} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
@@ -85,16 +78,21 @@ export default function ContaScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionHeader}>DOADOR</Text>
-        <View style={styles.menuSection}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => navigation.navigate('AddDonation')}
-          >
-            <Feather name="plus-circle" size={24} color={colors.primary} />
-            <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Adicionar Doação</Text>
-          </TouchableOpacity>
-        </View>
+        {user?.tipo === 'receber' && (
+        <>
+          <Text style={styles.sectionHeader}>DOADOR</Text>
+          <View style={styles.menuSection}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => navigation.navigate('AddDonation')}
+            >
+              <Feather name="plus-circle" size={24} color={colors.primary} />
+              <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Adicionar Doação</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+        )}
+
       </ScrollView>
 
       <View style={{ paddingBottom: insets.bottom }}>
@@ -108,7 +106,7 @@ export default function ContaScreen() {
             {
               icon: 'map-pin',
               label: 'MAPA',
-              onPress: () => navigation.navigate('Map'),
+              onPress: () => navigation.navigate('Map' as never),
             },
             {
               icon: 'user',

@@ -77,7 +77,7 @@ export default function LoginScreen() {
       <Text style={styles.title}>HelpWay</Text>
 
       <Input
-        icon="person"
+        icon="user"
         placeholder="Seu login/email"
         value={email}
         onChangeText={setEmail}

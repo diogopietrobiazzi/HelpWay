@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Button, StyleSheet, ScrollView, ImageSourcePropType, Image } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import {View,Text,TouchableOpacity,ScrollView,Image,KeyboardAvoidingView,Platform,TouchableWithoutFeedback,Keyboard,} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as ImagePicker from 'expo-image-picker';
 
 import Input from '../components/Input';
 import { useDonations, Donation } from '../context/DonationsContext';
 import { RootStackParamList } from '../navigation';
 import { colors } from '../styles';
+import styles from '../styles/addDonation';
+import type { LocationObjectCoords } from 'expo-location';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'AddDonation'>;
 
@@ -18,6 +22,8 @@ export default function AddDonationScreen() {
   const [need, setNeed] = useState('');
   const [responsible, setResponsible] = useState('');
   const [types, setTypes] = useState<string[]>([]);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   function toggleType(type: string) {
     setTypes(prev =>
@@ -25,91 +31,120 @@ export default function AddDonationScreen() {
     );
   }
 
+  async function pickImage() {
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.5 });
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  }
+
+  function handleLocationSelect() {
+    navigation.navigate('Map', {
+      onLocationSelected: (coords: LocationObjectCoords) => {
+        setLocation({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+      },
+    });
+  }
+
   function handleSubmit() {
+    if (!title || !need || !responsible || !types.length || !location) return;
+
     const newDonation: Omit<Donation, 'id'> = {
       title,
       subtitle: responsible,
-      raised: 0,
       goal: Number(need),
-      imageUri: Image.resolveAssetSource(require('../../assets/doctors1.png')).uri,
-};
+      raised: 0,
+      imageUri: imageUri ?? '',
+      types,
+      location,
+    };
+
     addDonation(newDonation);
     navigation.goBack();
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Input
-        icon="gift-outline"
-        placeholder="Título da campanha"
-        value={title}
-        onChangeText={setTitle}
-      />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+          <View style={styles.container}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
 
-      <Input
-        icon="pricetag-outline"
-        placeholder="Necessidade (valor/qtd)"
-        keyboardType="numeric"
-        value={need}
-        onChangeText={setNeed}
-      />
+            <Text style={styles.title}>Cadastrar Doação</Text>
 
-      <Text style={styles.label}>Tipo de doação</Text>
-      {['Dinheiro', 'Alimentação', 'Utensílios/Vestimenta'].map(type => (
-        <TouchableOpacity
-          key={type}
-          style={[
-            styles.typeButton,
-            types.includes(type) && styles.typeButtonActive,
-          ]}
-          onPress={() => toggleType(type)}
-        >
-          <Text
-            style={[
-              styles.typeText,
-              types.includes(type) && { color: colors.card },
-            ]}
-          >
-            {type}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+              {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+              ) : (
+                <Text style={styles.imagePickerText}>Selecionar imagem</Text>
+              )}
+            </TouchableOpacity>
 
-      <Input
-        icon="person-circle-outline"
-        placeholder="Responsável (nome e cargo)"
-        value={responsible}
-        onChangeText={setResponsible}
-      />
+            <Input
+              icon="pen"
+              placeholder="Título da campanha"
+              value={title}
+              onChangeText={setTitle}
+            />
+            <Input
+              icon="money-bill-wave"
+              placeholder="Necessidade (valor)"
+              keyboardType="numeric"
+              value={need}
+              onChangeText={setNeed}
+            />
+            <Input
+              icon="user-tie"
+              placeholder="Responsável (nome e cargo)"
+              value={responsible}
+              onChangeText={setResponsible}
+            />
 
-      <Button title="Criar Doação" onPress={handleSubmit} color={colors.primary} />
-    </ScrollView>
+
+            <Text style={styles.label}>Tipo de doação</Text>
+            <View style={styles.typeContainer}>
+              {['Dinheiro', 'Alimentação', 'Utensílios/Vestimenta'].map(type => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.typeButton,
+                    types.includes(type) && styles.typeButtonActive,
+                  ]}
+                  onPress={() => toggleType(type)}
+                >
+                  <Text
+                    style={[
+                      styles.typeText,
+                      types.includes(type) && { color: colors.card },
+                    ]}
+                  >
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity onPress={handleLocationSelect} style={styles.locationButton}>
+              <Text style={styles.locationButtonText}>
+                {location ? 'Localização selecionada' : 'Selecionar Localização no Mapa'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+              <Text style={styles.submitButtonText}>Criar Doação</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: colors.background,
-  },
-  label: {
-    marginTop: 12,
-    fontSize: 14,
-    color: colors.text,
-  },
-  typeButton: {
-    padding: 10,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 6,
-  },
-  typeButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  typeText: {
-    textAlign: 'center',
-    color: colors.text,
-  },
-});

@@ -1,14 +1,15 @@
 import React from 'react';
 import { TextInput, View, StyleSheet, TextInputProps } from 'react-native';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';interface Props extends TextInputProps {
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+interface Props extends TextInputProps {
   icon: string;
 }
 
 export default function Input({ icon, style, ...rest }: Props) {
   return (
     <View style={styles.container}>
-        <FontAwesome5 name="user" size={15} color="gray" />
-        <TextInput
+      <FontAwesome5 name={icon} size={15} color="gray" />
+      <TextInput
         style={[styles.input, style]}
         placeholderTextColor="#aaa"
         {...rest} 
@@ -16,7 +17,6 @@ export default function Input({ icon, style, ...rest }: Props) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
     width: 355,
-    height:65
+    height: 65
   },
   icon: {
     marginHorizontal: 15,

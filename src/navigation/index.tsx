@@ -10,6 +10,8 @@ import Map from '../screens/Map';
 import DonationPay from '../screens/DonationPay';
 import DonationPix from '../screens/DonationPix';
 import AlterarDados from '../screens/AlterarDados';
+import { LocationObjectCoords } from 'expo-location';
+
 
 export type DonationType = {
   id: string;
@@ -23,12 +25,12 @@ export type DonationType = {
 
 export type RootStackParamList = {
   Login: undefined;
-  SearchDonation: undefined;        //  blueprint exata da rota
+  SearchDonation: undefined;      
   DonationDetail: { donation: DonationType };
   Conta: undefined;
   AddDonation: undefined;
   Register: undefined;
-  Map: undefined;
+  Map: { onLocationSelected?: (coords: LocationObjectCoords) => void };
   AlterarDados: undefined;
   DonationPix: { donationAmount: string; donationName?: string; onCancel: () => void };
   DonationPay: { donation: DonationType };

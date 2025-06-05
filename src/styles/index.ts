@@ -9,6 +9,7 @@ export const colors = {
   text: '#333333',
   textLight: '#555555',
   border: '#CCCCCC',
+  success: 'blue',
 };
 
 // 2. Fontes
@@ -18,10 +19,12 @@ export const fonts = {
     h2: 24,
     body: 16,
     small: 12,
+    title: 20,
   },
   weights: {
     bold: '700' as const,
     regular: '400' as const,
+    medium: '500' as const,
   },
 };
 

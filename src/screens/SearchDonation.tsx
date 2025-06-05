@@ -88,7 +88,7 @@ function renderItem({ item }: { item: Donation }) {
             {
               icon: 'map-pin',
               label: 'MAPA',
-              onPress: () => navigation.navigate('Map'),
+              onPress: () => navigation.navigate('Map' as never),
             },
             {
               icon: 'user',

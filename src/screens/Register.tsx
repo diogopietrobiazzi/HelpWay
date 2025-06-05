@@ -126,9 +126,9 @@ export default function Register({ navigation }: Props) {
               </TouchableOpacity>
             </View>
 
-            <Input icon="person" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
+            <Input icon="user" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
             <InputDate icon="calendar" placeholder="Data de Nascimento" value={nascimento} onChange={setNascimento} />
-            <Input icon="mail" placeholder="Seu Email" value={email} onChangeText={setEmail} />
+            <Input icon="envelope" placeholder="Seu Email" value={email} onChangeText={setEmail} />
             {emailErro ? <Text style={styles.error}>{emailErro}</Text> : null}
 
             <InputPassword placeholder="Sua Senha" value={senha} onChangeText={setSenha} />

@@ -109,7 +109,6 @@ export default function AlterarDados({ navigation }: Props) {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.container}>
-            {/* Botão de voltar */}
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
@@ -126,9 +125,9 @@ export default function AlterarDados({ navigation }: Props) {
               )}
             </TouchableOpacity>
 
-            <Input icon="person" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
+            <Input icon="user" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
             <InputDate icon="calendar" placeholder="Data de Nascimento" value={nascimento} onChange={setNascimento} />
-            <Input icon="mail" placeholder="Email" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
+            <Input icon="envelope" placeholder="Email" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
 
             <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={{ marginBottom: 10 }}>
               <Text style={{ color: '#007AFF', textAlign: 'center' }}>
