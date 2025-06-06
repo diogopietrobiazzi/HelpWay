@@ -81,7 +81,7 @@ export default StyleSheet.create({
   borderRadius: 50,
   backgroundColor: '#fff',
 },
-profileImageLarge: {
+  profileImageLarge: {
   width: 96,
   height: 96,
   borderRadius: 48,

@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState } from 'react';
 
+import doctorsImage from '../../assets/doctors1.png';
+import ajudeRsImage from '../../assets/AjudeRs.jpg';
+import { Image } from 'react-native';
+
 export type Donation = {
   id: string;
   title: string;
@@ -16,7 +20,6 @@ export type Donation = {
 type DonationsContextType = {
   donations: Donation[];
   addDonation: (donation: Omit<Donation, 'id'>) => void;
-  ctiveDonation?: Donation;
 };
 
 const DonationsContext = createContext<DonationsContextType>({
@@ -25,14 +28,14 @@ const DonationsContext = createContext<DonationsContextType>({
 });
 
 export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [donations, setDonations] = useState<Donation[]>([
-     {
+ const [donations, setDonations] = useState<Donation[]>([
+  {
     id: '1',
     title: 'Ajude o RS',
     subtitle: 'Enchentes no Sul do Brasil',
     raised: 3000,
     goal: 10000,
-    imageUri: 'https://via.placeholder.com/150',
+    imageUri: Image.resolveAssetSource(ajudeRsImage).uri,
     types: ['Alimentos', 'Roupas'],
     location: {
       latitude: -30.0346,
@@ -45,14 +48,14 @@ export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     subtitle: 'Médicos sem Fronteiras',
     raised: 5000,
     goal: 15000,
-    imageUri: 'https://via.placeholder.com/150',
+    imageUri: Image.resolveAssetSource(doctorsImage).uri,
     types: ['Medicamentos'],
     location: {
       latitude: -23.5505,
       longitude: -46.6333,
     },
   },
-  ]);
+]);
 
   const addDonation = (donation: Omit<Donation, 'id'>) => {
     const newDonation: Donation = {

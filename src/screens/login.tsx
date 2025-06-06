@@ -26,7 +26,7 @@ const fakeUsers = [
     password: '123456',
     nascimento: new Date('1985-06-10'),
     imagem: Image.resolveAssetSource(ImgAdm).uri,
-    tipo: 'admin',
+    tipo: 'receber',
   },
 ];
 

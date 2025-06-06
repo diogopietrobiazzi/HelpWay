@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 
+import InputText from '../components/InputText';
 import Input from '../components/Input';
 import { useDonations, Donation } from '../context/DonationsContext';
 import { RootStackParamList } from '../navigation';
@@ -24,6 +25,7 @@ export default function AddDonationScreen() {
   const [types, setTypes] = useState<string[]>([]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [description, setDescription] = useState('');
 
   function toggleType(type: string) {
     setTypes(prev =>
@@ -91,24 +93,29 @@ export default function AddDonationScreen() {
 
             <Input
               icon="pen"
-              placeholder="Título da campanha"
+              placeholder="Título da Doação"
               value={title}
               onChangeText={setTitle}
             />
             <Input
               icon="money-bill-wave"
-              placeholder="Necessidade (valor)"
+              placeholder="Valor Necessario"
               keyboardType="numeric"
               value={need}
               onChangeText={setNeed}
             />
             <Input
               icon="user-tie"
-              placeholder="Responsável (nome e cargo)"
+              placeholder="Nome do Responsável"
               value={responsible}
               onChangeText={setResponsible}
             />
-
+           <InputText
+              icon="file-alt" 
+              placeholder="Descrição"
+              value={description}
+              onChangeText={setDescription}
+            />
 
             <Text style={styles.label}>Tipo de doação</Text>
             <View style={styles.typeContainer}>
