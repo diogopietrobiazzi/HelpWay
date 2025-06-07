@@ -1,39 +1,16 @@
-import { StyleSheet, Dimensions, Platform } from 'react-native';
-import { colors, fonts, globals } from './index';
+import { StyleSheet, Platform } from 'react-native';
+import { colors, fonts } from './index';
 
-const { width } = Dimensions.get('window');
-
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
-  },
-  mockStatusBar: {
-    height: 44,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-  },
-  timeText: {
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  statusIcons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    width: 80,
-  },
-  statusIconText: {
-    marginLeft: 5,
-    fontSize: 12,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: Platform.OS === 'android' ? 10 : 0,
-    marginBottom: 20,
   },
   backButton: {
     flexDirection: 'row',
@@ -41,112 +18,107 @@ export default StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: '#000000',
-    marginLeft: 8,
-    fontWeight: '500',
+    color: colors.text,
+    marginLeft: 6,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 20,
   },
   logoWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#E0F2F1',
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  redLogo: {
+  pixIcon: {
     width: 40,
     height: 40,
-    backgroundColor: '#E53935',
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  logoSymbol: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-    transform: [{ rotate: '15deg' }],
   },
   organizationName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#4A4A4A',
-    lineHeight: 20,
+    color: colors.text,
+    marginTop: 10,
+    textAlign: 'center',
   },
   amountContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 20,
-    alignSelf: 'center',
-    width: '80%',
+    alignItems: 'flex-end',
+    marginTop: 20,
   },
   currencySymbol: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#4A4A4A',
-    marginRight: 8,
+    marginRight: 4,
+    color: colors.primary,
   },
   amountText: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#4A4A4A',
+    color: colors.primary,
   },
   qrCodeContainer: {
+    marginTop: 30,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
   },
   qrCode: {
     width: 200,
     height: 200,
   },
   copyButton: {
-    backgroundColor: '#4F6AF6',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'row',
-    alignSelf: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: 20,
   },
   copyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
-    marginLeft: 8,
+    fontSize: 14,
   },
   pixCodeContainer: {
+    marginTop: 20,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 20,
   },
   pixCodeText: {
     fontSize: 12,
-    color: '#4A4A4A',
+    color: colors.primary,
     textAlign: 'center',
   },
   instructionsContainer: {
-    marginBottom: 20,
+    marginTop: 30,
+    paddingHorizontal: 10,
   },
   instructionText: {
     fontSize: 14,
-    color: '#4A4A4A',
-    marginBottom: 5,
+    color: colors.text,
+    marginBottom: 10,
   },
-  helpContainer: {
+  bottomSpacer: {
+    paddingBottom: Platform.OS === 'android' ? 30 : 20,
+    marginTop: 30,
+  },
+  confirmButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  helpText: {
-    fontSize: 14,
-    color: '#4A4A4A',
+  confirmButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  logoSymbol: {
+    fontSize: 28,
+    color: 'red',
   },
 });

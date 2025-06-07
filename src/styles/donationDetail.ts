@@ -56,4 +56,10 @@ export default StyleSheet.create({
     fontSize: fonts.sizes.body,
     color: colors.text,
   },
+  cancelText: {
+    fontSize: 16,
+    marginLeft: 6,
+    fontWeight: '600',
+    color: '#333',
+  },
 });

@@ -1,50 +1,46 @@
 import React from 'react';
-import {View,Text,Image, ScrollView,TouchableOpacity,} from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
 import PrimaryButton from '../components/PrimaryButton';
 import ProgressBar from '../components/ProgressBar';
 import styles from '../styles/donationDetail';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DonationDetail'>;
 
 export default function DonationDetailScreen({ route, navigation }: Props) {
   const { donation } = route.params;
+
   function handleLogin() {
-  navigation.replace('DonationPay', { donation });
+  navigation.navigate('DonationPay', {
+    donation,
+  });
 }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Voltar */}
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.back}>← VOLTAR</Text>
-      </TouchableOpacity>
+      <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ marginBottom: 20, flexDirection: 'row', alignItems: 'center' }}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+            <Text style={[styles.cancelText, { marginLeft: 5 }]}>Voltar</Text>
+          </TouchableOpacity>
 
-      <Image
-        source={require('../../assets/doctors1.png')}
-        style={styles.mainImage}
-        resizeMode="cover"
-      />
+      <Image source={{ uri: donation.imageUri }} style={styles.mainImage} resizeMode="cover" />
 
-
-      {/* Título e subtítulo */}
       <Text style={styles.title}>{donation.title}</Text>
-      <Text style={styles.subtitle}>Paraná / Dois Vizinho</Text>
+      <Text style={styles.subtitle}>{donation.subtitle}</Text>
 
-      {/* Tag */}
       <View style={styles.tag}>
         <Text style={styles.tagText}>PONTO DE COLETA</Text>
       </View>
 
-      {/* Descrição longa */}
-      <Text style={styles.description}>
-        Doadores Sem Fronteiras são as pessoas que fazem doações mensais e recorrentes para MSF, fundamentais para manter nosso trabalho independente de poderes políticos e econômicos. E graças a essas contribuições constantes que podemos nos planejar, agir rapidamente em situações urgentes como a guerra em Gaza e outras emergências pelo mundo. Tudo isso significa salvar vidas!
-      </Text>
+      <Text style={styles.description}>{donation.description}</Text>
 
-      {/* Botão Doar Agora */}
       <PrimaryButton title="Doar Agora" onPress={handleLogin} />
 
-      {/* Barra de progresso */}
       <View style={styles.progressContainer}>
         <ProgressBar progress={donation.raised / donation.goal} />
         <Text style={styles.progressText}>

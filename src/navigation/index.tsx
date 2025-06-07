@@ -11,6 +11,7 @@ import DonationPay from '../screens/DonationPay';
 import DonationPix from '../screens/DonationPix';
 import AlterarDados from '../screens/AlterarDados';
 import { LocationObjectCoords } from 'expo-location';
+import { Donation } from '../context/DonationsContext';
 
 
 export type DonationType = {
@@ -26,13 +27,13 @@ export type DonationType = {
 export type RootStackParamList = {
   Login: undefined;
   SearchDonation: undefined;      
-  DonationDetail: { donation: DonationType };
+  DonationDetail: { donation: Donation };
   Conta: undefined;
   AddDonation: undefined;
   Register: undefined;
   Map: { onLocationSelected?: (coords: LocationObjectCoords) => void };
   AlterarDados: undefined;
-  DonationPix: { donationAmount: string; donationName?: string; onCancel: () => void };
+  DonationPix: { donationAmount: string; donationName?: string; donationId: string };
   DonationPay: { donation: DonationType };
 };
 

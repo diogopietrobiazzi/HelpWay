@@ -1,143 +1,153 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
-import { colors, fonts, globals } from './index';
+import { colors, fonts, globals } from './index'; // Se ainda quiser usar
 
 const { width } = Dimensions.get('window');
 
 export default StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
+    flexGrow: 1,
+    backgroundColor: '#F2F5FA',
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  mockStatusBar: {
-    height: 44,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-  },
-  timeText: {
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  statusIcons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    width: 80,
-  },
-  statusIconText: {
-    marginLeft: 5,
-    fontSize: 12,
-  },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: Platform.OS === 'android' ? 10 : 0,
-    marginBottom: 40,
+    marginBottom: 20,
   },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+
   cancelText: {
     fontSize: 16,
-    color: '#000000',
-    marginLeft: 8,
-    fontWeight: '500',
+    marginLeft: 6,
+    fontWeight: '600',
+    color: '#333',
   },
+
+  pageTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#888',
+    letterSpacing: 1,
+  },
+
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 24,
   },
-  logoWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  redLogo: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#E53935',
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  logoSymbol: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-    transform: [{ rotate: '15deg' }],
-  },
+
   organizationName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4A4A4A',
-    lineHeight: 22,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#222',
+    marginTop: 4,
+    textAlign: 'center',
   },
+
   amountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    padding: 15,
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
     marginBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
+
   currencySymbol: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4A4A4A',
-    marginRight: 8,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginRight: 6,
   },
-  amountText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4A4A4A',
+
+  amountInput: {
+    fontSize: 26,
+    fontWeight: '600',
+    color: '#000',
+    flex: 1,
+    textAlign: 'left',
   },
+
   minimumDonation: {
-    fontSize: 12,
-    color: '#9E9E9E',
+    fontSize: 13,
     textAlign: 'center',
+    color: '#777',
     marginBottom: 30,
   },
-  formContainer: {
-    width: '100%',
-    backgroundColor: '#F9F9F9',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 40,
+
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#333',
   },
+
+  formContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 1,
+  },
+
   inputContainer: {
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
-    marginBottom: 5,
+    marginBottom: 20,
   },
+
   input: {
     fontSize: 16,
-    paddingVertical: 15,
-    color: '#4A4A4A',
+    paddingVertical: 12,
+    color: '#333',
   },
+
   donateButton: {
-    backgroundColor: '#4F6AF6', 
+    backgroundColor: '#4F6AF6',
     borderRadius: 30,
     paddingVertical: 18,
     alignItems: 'center',
     width: '100%',
   },
+
   donateButtonText: {
-    color: '#FFFFFF',
+    color: '#FFF',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
-  amountInput: {
-    fontSize: 24,
+    redLogo: {
+    width: 54,
+    height: 54,
+    backgroundColor: '#E53935',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  logoSymbol: {
+    color: '#FFF',
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginVertical: 10,
+    transform: [{ rotate: '15deg' }],
+  },
+    logoWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

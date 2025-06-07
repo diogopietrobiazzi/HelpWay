@@ -62,6 +62,7 @@ export default function AddDonationScreen() {
       imageUri: imageUri ?? '',
       types,
       location,
+      description,
     };
 
     addDonation(newDonation);
