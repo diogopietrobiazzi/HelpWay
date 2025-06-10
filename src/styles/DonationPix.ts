@@ -1,124 +1,111 @@
 import { StyleSheet, Platform } from 'react-native';
-import { colors, fonts } from './index';
 
-export const styles = StyleSheet.create({
-  container: {
+export default StyleSheet.create({
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
-    paddingHorizontal: 20,
+    backgroundColor: '#F2F5FA',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Platform.OS === 'android' ? 10 : 0,
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  cancelText: {
-    fontSize: 16,
-    color: colors.text,
-    marginLeft: 6,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  logoWrapper: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#E0F2F1',
+    width: 44,
+    height: 44,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
-  pixIcon: {
-    width: 40,
-    height: 40,
+  contentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
-  organizationName: {
-    fontSize: 18,
+  title: {
+    fontSize: 22,
     fontWeight: 'bold',
-    color: colors.text,
-    marginTop: 10,
+    color: '#1E293B',
     textAlign: 'center',
+    marginBottom: 4,
   },
-  amountContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    marginTop: 20,
-  },
-  currencySymbol: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginRight: 4,
-    color: colors.primary,
+  subtitle: {
+    fontSize: 15,
+    color: '#64748B',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   amountText: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: '#1E293B',
+    textAlign: 'center',
   },
-  qrCodeContainer: {
-    marginTop: 30,
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   qrCode: {
     width: 200,
     height: 200,
+    marginBottom: 16,
   },
   copyButton: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 20,
+    justifyContent: 'center',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    width: '100%',
   },
   copyButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#475569',
     fontSize: 14,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
-  pixCodeContainer: {
-    marginTop: 20,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-  },
-  pixCodeText: {
-    fontSize: 12,
-    color: colors.primary,
-    textAlign: 'center',
-  },
-  instructionsContainer: {
-    marginTop: 30,
-    paddingHorizontal: 10,
+  instructionsTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1E293B',
+    marginBottom: 12,
+    marginTop: 10,
   },
   instructionText: {
     fontSize: 14,
-    color: colors.text,
-    marginBottom: 10,
+    color: '#475569',
+    lineHeight: 21,
+    marginBottom: 8,
   },
-  bottomSpacer: {
-    paddingBottom: Platform.OS === 'android' ? 30 : 20,
-    marginTop: 30,
+  footer: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    backgroundColor: '#F2F5FA',
   },
   confirmButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 14,
-    borderRadius: 8,
+    backgroundColor: '#16A34A',
+    borderRadius: 30,
+    paddingVertical: 16,
     alignItems: 'center',
+    shadowColor: '#16A34A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  confirmButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+    elevation: 0,
   },
   confirmButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  logoSymbol: {
-    fontSize: 28,
-    color: 'red',
   },
 });

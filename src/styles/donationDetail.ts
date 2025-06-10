@@ -3,19 +3,33 @@ import { colors, fonts, globals } from './index';
 
 export default StyleSheet.create({
   container: {
-    ...globals.container,
-    paddingTop: 16,
-    paddingBottom: 40,
+    flexGrow: 1,
+    backgroundColor: '#fff',
   },
-  back: {
-    color: colors.primary,
-    fontSize: fonts.sizes.body,
-    marginBottom: 12,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mainImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 12,
+    height: 250,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    padding: 8,
+    borderRadius: 20,
+    zIndex: 1,
+  },
+  contentContainer: {
+    padding: 20,
+    marginTop: -20,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   title: {
     fontSize: fonts.sizes.h2,
@@ -27,14 +41,20 @@ export default StyleSheet.create({
     fontSize: fonts.sizes.small,
     color: colors.textLight,
     marginTop: 4,
+    marginBottom: 12,
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
   },
   tag: {
-    backgroundColor: '#E53935',
+    backgroundColor: colors.primary,
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 15,
   },
   tagText: {
     color: '#FFF',
@@ -45,16 +65,27 @@ export default StyleSheet.create({
     fontSize: fonts.sizes.body,
     color: colors.text,
     marginTop: 12,
-    lineHeight: 20,
+    lineHeight: 22,
+    marginBottom: 24,
   },
   progressContainer: {
     marginTop: 16,
-    alignItems: 'center',
+    marginBottom: 24,
   },
-  progressText: {
-    marginTop: 8,
+  progressInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 4,
+  },
+  raisedText: {
     fontSize: fonts.sizes.body,
-    color: colors.text,
+    fontWeight: fonts.weights.bold,
+    color: colors.primary,
+  },
+  goalText: {
+    fontSize: fonts.sizes.body,
+    color: colors.textLight,
   },
   cancelText: {
     fontSize: 16,

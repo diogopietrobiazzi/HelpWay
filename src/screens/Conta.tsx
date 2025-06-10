@@ -1,5 +1,12 @@
 import React from 'react';
-import {  SafeAreaView,  ScrollView,  View,  Text,  TouchableOpacity,  Image,} from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
@@ -28,13 +35,13 @@ export default function ContaScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.profileCard, { marginTop: 24 }]}>
-          {user?.imagem ? (
-            <Image source={{ uri: user.imagem }} style={styles.profileImage} />
+          {user?.img_usuario ? (
+            <Image source={{ uri: user.img_usuario }} style={styles.profileImage} />
           ) : (
             <Feather name="user" size={48} color="#fff" />
           )}
           <View style={styles.profileText}>
-            <Text style={styles.profileName}>{user?.name}</Text>
+            <Text style={styles.profileName}>{user?.nome}</Text>
           </View>
         </View>
 
@@ -78,21 +85,22 @@ export default function ContaScreen() {
           </TouchableOpacity>
         </View>
 
-        {user?.tipo === 'receber' && (
-        <>
-          <Text style={styles.sectionHeader}>DOADOR</Text>
-          <View style={styles.menuSection}>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => navigation.navigate('AddDonation')}
-            >
-              <Feather name="plus-circle" size={24} color={colors.primary} />
-              <Text style={[styles.menuTitle, { marginLeft: 12 }]}>Adicionar Doação</Text>
-            </TouchableOpacity>
-          </View>
-        </>
+        {user?.tp_usuario === 2 && (
+          <>
+            <Text style={styles.sectionHeader}>DOADOR</Text>
+            <View style={styles.menuSection}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('AddDonation')}
+              >
+                <Feather name="plus-circle" size={24} color={colors.primary} />
+                <Text style={[styles.menuTitle, { marginLeft: 12 }]}>
+                  Adicionar Doação
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
-
       </ScrollView>
 
       <View style={{ paddingBottom: insets.bottom }}>

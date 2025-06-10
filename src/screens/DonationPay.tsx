@@ -8,32 +8,68 @@ import {
   Platform,
   Alert,
   KeyboardAvoidingView,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from '../styles/DonationPay';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DonationPay'>;
+
+type DonationAPI = {
+  id: string;
+  titulo: string;
+  subtitulo: string;
+  descricao: string;
+  imagem_url: string;
+  meta_doacoes: number;
+  valor_levantado: number;
+};
 
 const DonationPay: React.FC<Props> = ({ navigation, route }) => {
   const { donation } = route.params;
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const [fullName, setFullName] = useState('');
   const [cpf, setCpf] = useState('');
   const [email, setEmail] = useState('');
-  const [amount, setAmount] = useState('5,00');
+  const [amount, setAmount] = useState('25');
+  const [donationData, setDonationData] = useState<DonationAPI | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const suggestedAmounts = ['10', '25', '50'];
 
   useEffect(() => {
     if (user) {
-      setFullName(user.name);
+      setFullName(user.nome);
       setEmail(user.email);
     }
-  }, [user]);
+
+    const fetchDonation = async () => {
+      try {
+        const data = await api.getDonationById(Number(donation.id));
+        setDonationData(data);
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Erro', 'Não foi possível carregar os dados da doação.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonation();
+  }, [donation.id, user]);
+
+  const handleAmountChange = (text: string) => {
+    const formattedText = text.replace(/[^0-9,]/g, '');
+    setAmount(formattedText);
+  };
 
   const handleDonate = () => {
     const valorNumerico = parseFloat(amount.replace(',', '.'));
@@ -44,86 +80,116 @@ const DonationPay: React.FC<Props> = ({ navigation, route }) => {
 
     navigation.navigate('DonationPix', {
       donationId: donation.id,
-      donationAmount: amount.replace(',', '.'),
-      donationName: donation.title,
-});
-
+      donationAmount: valorNumerico.toString(),
+      donationName: donationData?.titulo || '',
+    });
   };
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-        translucent={false}
-      />
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#4F6AF6" />
+      </View>
+    );
+  }
 
+  if (!donationData) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#F2F5FA' }}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ position: 'absolute', top: 40, left: 20 }}
+            >
+                <Ionicons name="arrow-back" size={24} color="#333" />
+            </TouchableOpacity>
+            <Text style={{ textAlign: 'center', fontSize: 16, color: '#666' }}>Dados da doação indisponíveis.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F2F5FA' }}>
+      <StatusBar barStyle="dark-content" />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight || 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.container}>
-          {/* Botão de Voltar */}
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{ marginBottom: 20, flexDirection: 'row', alignItems: 'center' }}
-          >
-            <Ionicons name="arrow-back" size={24} color="#000" />
-            <Text style={[styles.cancelText, { marginLeft: 5 }]}>Voltar</Text>
-          </TouchableOpacity>
-
-          {/* Nome da Organização */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logoWrapper}>
-              <View style={styles.redLogo}>
-                <Text style={styles.logoSymbol}>≡</Text>
+        <ScrollView
+          contentContainerStyle={[styles.container, { paddingTop: 0, paddingBottom: insets.bottom + 20 }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="#333" />
+            </TouchableOpacity>
+            <View style={styles.headerCenter}>
+              <View style={styles.logoWrapper}>
+                <View style={styles.redLogo}>
+                  <Text style={styles.logoSymbol}>♥</Text>
+                </View>
+                <Text style={styles.organizationName}>{donationData.titulo}</Text>
               </View>
-              <Text style={styles.organizationName}>{donation.title.toUpperCase()}</Text>
             </View>
+            <View style={styles.headerPlaceholder} />
           </View>
 
-          {/* Valor da Doação */}
+          <Text style={styles.campaignSubtitle}>{donationData.subtitulo}</Text>
+
+          <Text style={styles.sectionTitle}>Escolha um valor</Text>
+          <View style={styles.suggestionContainer}>
+            {suggestedAmounts.map(value => (
+                <TouchableOpacity 
+                    key={value} 
+                    style={[
+                        styles.suggestionButton,
+                        amount === value && styles.suggestionButtonSelected
+                    ]} 
+                    onPress={() => setAmount(value)}
+                >
+                    <Text style={styles.suggestionText}>R$ {value}</Text>
+                </TouchableOpacity>
+            ))}
+          </View>
+
           <View style={styles.amountContainer}>
             <Text style={styles.currencySymbol}>R$</Text>
             <TextInput
               style={styles.amountInput}
               value={amount}
-              onChangeText={setAmount}
-              keyboardType="numeric"
-              placeholder="Digite o valor"
-              placeholderTextColor="#999"
+              onChangeText={handleAmountChange}
+              keyboardType="decimal-pad"
+              placeholder="0,00"
+              placeholderTextColor="#CBD5E1"
             />
           </View>
+          <Text style={styles.minimumDonation}>Doação mínima de R$ 5,00</Text>
 
-          <Text style={styles.minimumDonation}>DOAÇÃO MÍNIMA DE R$ 5,00</Text>
-
-          {/* Formulário */}
+          <Text style={styles.sectionTitle}>Seus Dados</Text>
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Nome Completo</Text>
               <TextInput
                 style={styles.input}
-                placeholder="NOME COMPLETO"
-                placeholderTextColor="#999"
                 value={fullName}
                 onChangeText={setFullName}
               />
             </View>
             <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>CPF</Text>
               <TextInput
                 style={styles.input}
-                placeholder="CPF"
-                placeholderTextColor="#999"
                 value={cpf}
                 onChangeText={setCpf}
                 keyboardType="numeric"
               />
             </View>
             <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Email</Text>
               <TextInput
                 style={styles.input}
-                placeholder="EMAIL"
-                placeholderTextColor="#999"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -132,9 +198,8 @@ const DonationPay: React.FC<Props> = ({ navigation, route }) => {
             </View>
           </View>
 
-          {/* Botão de Doar */}
           <TouchableOpacity style={styles.donateButton} onPress={handleDonate}>
-            <Text style={styles.donateButtonText}>DOAR AGORA</Text>
+            <Text style={styles.donateButtonText}>DOAR R$ {amount}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

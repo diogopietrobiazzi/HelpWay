@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import {  View,  Text,  KeyboardAvoidingView,  Platform,  ScrollView,  TouchableWithoutFeedback,  Keyboard,  Image,  TouchableOpacity,} from 'react-native';
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -13,6 +24,7 @@ import InputDate from '../components/InputDate';
 
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/register';
+import { api } from '../services/api';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -23,7 +35,7 @@ export default function Register({ navigation }: Props) {
   const [nome, setNome] = useState('');
   const [nascimento, setNascimento] = useState('');
   const [imagemUri, setImagemUri] = useState<string | null>(null);
-  const [tipoUsuario, setTipoUsuario] = useState<'doar' | 'receber' | null>(null);
+  const [tipoUsuario, setTipoUsuario] = useState<'doar' | 'receber'>('doar'); 
 
   const [emailErro, setEmailErro] = useState('');
   const [senhaErro, setSenhaErro] = useState('');
@@ -49,7 +61,7 @@ export default function Register({ navigation }: Props) {
   async function selecionarImagem() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('Permissão para acessar imagens negada.');
+      Alert.alert('Atenção', 'Permissão para acessar imagens é necessária.');
       return;
     }
 
@@ -65,7 +77,7 @@ export default function Register({ navigation }: Props) {
     }
   }
 
-  function handleLogin() {
+  async function handleCadastro() { 
     let valido = true;
 
     if (!validarEmail(email)) {
@@ -78,21 +90,38 @@ export default function Register({ navigation }: Props) {
     if (senha !== confirmarSenha) {
       setSenhaErro('As senhas não coincidem.');
       valido = false;
+    } else if (senha.length < 6) {
+      setSenhaErro('A senha deve ter no mínimo 6 caracteres.');
+      valido = false;
     } else {
       setSenhaErro('');
     }
+    
+    if (!nome || !nascimento || !email || !senha) {
+        Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
+        valido = false;
+    }
 
     if (valido) {
-      setUser({
-        name: nome,
-        email: email,
-        nascimento: new Date(nascimento),
-        password: senha,
-        imagem: imagemUri || '',
-        tipo: tipoUsuario || '',
-      });
+      try {
+        const usuarioCriado = await api.createUser({
+          img_usuario: imagemUri || '',
+          nome,
+          email,
+          senha,
+          dt_nascimento: new Date(nascimento).toISOString().split('T')[0],
+          tp_usuario: tipoUsuario === 'doar' ? 1 : 2,
+        });
 
-      navigation.replace('SearchDonation');
+        setUser(usuarioCriado);
+
+        Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
+        navigation.replace('SearchDonation');
+        
+      } catch (error: any) {
+        console.error('Erro ao cadastrar:', error);
+        Alert.alert('Erro', error.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.');
+      }
     }
   }
 
@@ -128,22 +157,24 @@ export default function Register({ navigation }: Props) {
 
             <Input icon="user" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
             <InputDate icon="calendar" placeholder="Data de Nascimento" value={nascimento} onChange={setNascimento} />
-            <Input icon="envelope" placeholder="Seu Email" value={email} onChangeText={setEmail} />
+            <Input icon="envelope" placeholder="Seu Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
             {emailErro ? <Text style={styles.error}>{emailErro}</Text> : null}
 
             <InputPassword placeholder="Sua Senha" value={senha} onChangeText={setSenha} />
             <InputPassword placeholder="Confirmar Senha" value={confirmarSenha} onChangeText={setConfirmarSenha} />
             {senhaErro ? <Text style={styles.error}>{senhaErro}</Text> : null}
 
-            <Text style={styles.subTitle}>Você deseja doar ou receber?</Text>
-              <TouchableOpacity
-                style={styles.toggleUniqueButton}
-                onPress={() => setTipoUsuario(prev => (prev === 'doar' ? 'receber' : 'doar'))}
-              >
-                <Text style={styles.toggleUniqueButtonText}>{tipoUsuario === 'doar' ? 'Doar' : 'Receber'}</Text>
-              </TouchableOpacity>
+            <Text style={styles.subTitle}>Você deseja?</Text>
+            <TouchableOpacity
+              style={styles.toggleUniqueButton}
+              onPress={() => setTipoUsuario(prev => (prev === 'doar' ? 'receber' : 'doar'))}
+            >
+              <Text style={styles.toggleUniqueButtonText}>
+                {tipoUsuario === 'doar' ? 'Ajudar Pessoas' : 'Receber Ajuda'}
+              </Text>
+            </TouchableOpacity>
 
-            <Button title="Salvar" onPress={handleLogin} />
+            <Button title="Cadastrar" onPress={handleCadastro} />
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>

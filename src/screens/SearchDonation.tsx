@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import {  View,  Text,  FlatList,  KeyboardAvoidingView,Platform,  StatusBar,  TouchableOpacity,  Modal,} from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  View, Text, FlatList, KeyboardAvoidingView, Platform,
+  StatusBar, TouchableOpacity, Modal, Alert, ActivityIndicator
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as NavigationBar from 'expo-navigation-bar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Location from 'expo-location';
 import Slider from '@react-native-community/slider';
@@ -13,186 +15,252 @@ import SegmentControl from '../components/SegmentControl';
 import DonationCard from '../components/DonationCard';
 import TabBar from '../components/TabBar';
 
-import searchStyles from '../styles/searchDonation';
-import { useDonations, Donation } from '../context/DonationsContext';
+import {styles} from '../styles/searchDonation';
 import { RootStackParamList } from '../navigation';
+import { api } from '../services/api';
+import { type Donation } from '../context/DonationsContext'; 
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'SearchDonation'>;
+type FilterType = 'REGIONAL' | 'NACIONAL' | 'MUNDIAL';
 
 export default function SearchDonationScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavProp>();
-  const { donations } = useDonations();
+  const isFocused = useIsFocused();
 
+  const [allDonations, setAllDonations] = useState<Donation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'REGIONAL' | 'NACIONAL' | 'MUNDIAL'>('REGIONAL');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('MUNDIAL');
   const [modalVisible, setModalVisible] = useState(false);
-  const [maxDistance, setMaxDistance] = useState(2000);
-  const [minValue, setMinValue] = useState(0);
-  const [maxValue, setMaxValue] = useState(20000);
+  
+  const [distanceFilter, setDistanceFilter] = useState(5000);
+  const [sliderMaximumValue, setSliderMaximumValue] = useState(5000);
+
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const donationTypes = ['Dinheiro', 'Alimentação', 'Utensílio'];
 
   useEffect(() => {
-    StatusBar.setHidden(true);
-    if (Platform.OS === 'android') {
-      NavigationBar.setVisibilityAsync('hidden');
-      NavigationBar.setBackgroundColorAsync('#2D4BFF');
-    }
-
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
-        const location = await Location.getCurrentPositionAsync({});
+        const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
         setUserLocation(location.coords);
       }
     })();
   }, []);
 
-  function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  useEffect(() => {
+    const fetchDonations = async () => {
+      setIsLoading(true);
+      try {
+        const donationsFromApi = await api.getDonations();
+        const activeDonations = donationsFromApi.filter(
+          (d: any) => d.meta_doacoes > d.valor_levantado
+        );
+        const formattedDonations: Donation[] = activeDonations.map((apiDonation: any) => ({
+          id: String(apiDonation.id),
+          title: apiDonation.titulo,
+          subtitle: apiDonation.subtitulo,
+          raised: apiDonation.valor_levantado,
+          goal: apiDonation.meta_doacoes,
+          imageUri: apiDonation.imagem_url,
+          description: apiDonation.descricao,
+          types: [
+            apiDonation.fg_dinheiro && 'Dinheiro',
+            apiDonation.fg_alimentacao && 'Alimentação',
+            apiDonation.fg_vestuario && 'Utensílio',
+          ].filter(Boolean) as string[],
+          location: apiDonation.localizacao
+            ? {
+                latitude: apiDonation.localizacao.latitude,
+                longitude: apiDonation.localizacao.longitude,
+              }
+            : { latitude: 0, longitude: 0 },
+        }));
+        setAllDonations(formattedDonations);
+      } catch (error: any) {
+        Alert.alert('Erro', 'Não foi possível carregar as doações.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isFocused) {
+      fetchDonations();
+    }
+  }, [isFocused]);
+
+  const getDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const toRad = (value: number) => (value * Math.PI) / 180;
     const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
-  }
+  };
 
-  const filteredDonations = donations.filter((donation) => {
-    const searchLower = search.toLowerCase();
-    const matchesSearch =
-      donation.title.toLowerCase().includes(searchLower) ||
-      (donation.subtitle?.toLowerCase() ?? '').includes(searchLower);
+  useEffect(() => {
+    if (allDonations.length > 0 && userLocation) {
+      const distances = allDonations
+        .filter(d => d.location.latitude !== 0)
+        .map(d => getDistanceKm(userLocation.latitude, userLocation.longitude, d.location.latitude, d.location.longitude));
+      
+      if (distances.length > 0) {
+        const furthestDonation = Math.max(...distances);
+        const newMax = Math.ceil(furthestDonation / 100) * 100;
+        const finalMax = newMax > 50 ? newMax : 50;
+        setSliderMaximumValue(finalMax);
+        setDistanceFilter(finalMax);
+      }
+    }
+  }, [allDonations, userLocation]);
 
-    const distance =
-      userLocation && donation.location
-        ? getDistanceKm(
-            userLocation.latitude,
-            userLocation.longitude,
-            donation.location.latitude,
-            donation.location.longitude
-          )
-        : Infinity;
+  const handleFilterChange = (value: FilterType) => {
+    setActiveFilter(value);
+    if (value === 'REGIONAL') {
+      setDistanceFilter(50);
+    } else if (value === 'NACIONAL') {
+      setDistanceFilter(2000);
+    } else if (value === 'MUNDIAL') {
+      setDistanceFilter(sliderMaximumValue);
+    }
+  };
 
-    const matchesFilter =
-      filter === 'REGIONAL'
-        ? distance <= 50
-        : filter === 'NACIONAL'
-        ? distance <= 1000
-        : true;
+  const filteredDonations = useMemo(() => {
+    return allDonations.filter((donation) => {
+      const searchLower = search.toLowerCase();
+      const matchesSearch =
+        donation.title.toLowerCase().includes(searchLower) ||
+        (donation.subtitle?.toLowerCase() ?? '').includes(searchLower);
 
-    const withinDistance = distance <= maxDistance;
-    const matchesPrice = donation.raised >= minValue && donation.raised <= maxValue;
-    const matchesType =
-      selectedTypes.length === 0 ||
-      selectedTypes.some((type) => donation.types.includes(type));
+      const distance =
+        userLocation && donation.location?.latitude !== 0
+          ? getDistanceKm(
+              userLocation.latitude,
+              userLocation.longitude,
+              donation.location.latitude,
+              donation.location.longitude
+            )
+          : Infinity;
+      
+      const withinDistance = distance <= distanceFilter;
 
-    return matchesSearch && matchesFilter && withinDistance && matchesPrice && matchesType;
-  });
+      const matchesType =
+        selectedTypes.length === 0 ||
+        selectedTypes.some((type) => donation.types.includes(type));
+
+      return matchesSearch && withinDistance && matchesType;
+    });
+  }, [allDonations, search, distanceFilter, selectedTypes, userLocation]);
 
   return (
-    <SafeAreaView style={[searchStyles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView style={[styles.container, { paddingTop: Platform.OS === 'android' ? insets.top : 0 }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <KeyboardAvoidingView
-        style={searchStyles.flex}
+        style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={searchStyles.searchRow}>
+        <View style={styles.searchRow}>
           <SearchBar value={search} onChangeText={setSearch} />
           <FilterButton onPress={() => setModalVisible(true)} />
         </View>
 
         <SegmentControl
           options={['REGIONAL', 'NACIONAL', 'MUNDIAL']}
-          selected={filter}
-          onSelect={(value) => setFilter(value as any)}
+          selected={activeFilter}
+          onSelect={(value) => handleFilterChange(value as FilterType)}
         />
-
-        <FlatList
-          data={filteredDonations}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={{ paddingBottom: 120 }} 
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigation.navigate('DonationDetail', { donation: item })}>
-              <DonationCard
-                imageUri={item.imageUri}
-                title={item.title}
-                subtitle={item.subtitle}
-                raised={item.raised}
-                goal={item.goal}
-                types={item.types}
-              />
-            </TouchableOpacity>
-          )}
-        />
-
-        <View style={searchStyles.tabBarContainer}>
-          <TabBar
-            tabs={[
-              {
-                icon: 'search',
-                label: 'DESCUBRA',
-                onPress: () => navigation.navigate('SearchDonation'),
-              },
-              {
-                icon: 'map-pin',
-                label: 'MAPA',
-                onPress: () => navigation.navigate('Map' as never),
-              },
-              {
-                icon: 'user',
-                label: 'CONTA',
-                onPress: () => navigation.navigate('Conta'),
-              },
-            ]}
+        
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#4F6AF6" style={{ flex: 1 }}/>
+        ) : (
+          <FlatList
+            data={filteredDonations}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => navigation.navigate('DonationDetail', { donation: item })}>
+                <DonationCard
+                  imageUri={item.imageUri}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  raised={item.raised}
+                  goal={item.goal}
+                  types={item.types}
+                />
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={
+              <View style={styles.emptyListContainer}>
+                <Text style={styles.emptyListText}>Nenhuma doação encontrada para os filtros selecionados.</Text>
+              </View>
+            }
           />
-        </View>
+        )}
       </KeyboardAvoidingView>
+      
+      <View style={[styles.tabBarContainer, { paddingBottom: insets.bottom }]}>
+        <TabBar
+          tabs={[
+            { icon: 'search', label: 'DESCUBRA', onPress: () => {} },
+            { icon: 'map-pin', label: 'MAPA', onPress: () => navigation.navigate('Map' as never) },
+            { icon: 'user', label: 'CONTA', onPress: () => navigation.navigate('Conta') },
+          ]}
+        />
+      </View>
 
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={searchStyles.modalOverlay}>
-          <View style={searchStyles.modalContent}>
-            <Text style={searchStyles.modalTitle}>Distância máxima (km)</Text>
+      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setModalVisible(false)}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+            <Text style={styles.modalTitle}>Filtrar por Distância</Text>
             <Slider
               minimumValue={0}
-              maximumValue={2000}
-              value={maxDistance}
-              onValueChange={setMaxDistance}
-              step={10}
-              style={searchStyles.slider}
+              maximumValue={sliderMaximumValue}
+              value={distanceFilter}
+              onValueChange={setDistanceFilter}
+              step={50}
+              style={styles.slider}
+              minimumTrackTintColor="#4F6AF6"
+              maximumTrackTintColor="#CBD5E1"
+              thumbTintColor="#4F6AF6"
             />
-            <Text style={searchStyles.distanceLabel}>{Math.round(maxDistance)} km</Text>
+            <Text style={styles.distanceLabel}>Até {Math.round(distanceFilter)} km</Text>
 
-            <Text style={searchStyles.modalTitle}>Tipo de Doação</Text>
-            {donationTypes.map((type) => (
-              <TouchableOpacity
-                key={type}
-                onPress={() =>
-                  setSelectedTypes((prev) =>
-                    prev.includes(type)
-                      ? prev.filter((t) => t !== type)
-                      : [...prev, type]
-                  )
-                }
-                style={[searchStyles.typeButton, selectedTypes.includes(type) && searchStyles.typeButtonSelected]}
-              >
-                <Text style={searchStyles.typeButtonText}>{type}</Text>
-              </TouchableOpacity>
-            ))}
+            <Text style={styles.modalTitle}>Tipo de Doação</Text>
+            <View style={styles.typeContainer}>
+                {donationTypes.map((type) => (
+                <TouchableOpacity
+                    key={type}
+                    onPress={() =>
+                    setSelectedTypes((prev) =>
+                        prev.includes(type)
+                        ? prev.filter((t) => t !== type)
+                        : [...prev, type]
+                    )
+                    }
+                    style={[
+                        styles.typeButton,
+                        selectedTypes.includes(type) && styles.typeButtonSelected,
+                    ]}
+                >
+                    <Text style={[styles.typeButtonText, selectedTypes.includes(type) && styles.typeButtonTextSelected]}>{type}</Text>
+                </TouchableOpacity>
+                ))}
+            </View>
 
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
-              style={searchStyles.closeButton}
+              style={styles.closeButton}
             >
-              <Text style={searchStyles.closeText}>Fechar</Text>
+              <Text style={styles.closeText}>Aplicar Filtros</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );

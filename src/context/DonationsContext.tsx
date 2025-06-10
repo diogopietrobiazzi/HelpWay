@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
+import { Image } from 'react-native';
 import doctorsImage from '../../assets/doctors1.png';
 import ajudeRsImage from '../../assets/AjudeRs.jpg';
-import { Image } from 'react-native';
+import {api} from '../services/api';
 
 export type Donation = {
   id: string;
@@ -17,13 +18,13 @@ export type Donation = {
 
 type DonationsContextType = {
   donations: Donation[];
-  addDonation: (donation: Omit<Donation, 'id'>) => void;
+  addDonation: (donation: Omit<Donation, 'id'>) => Promise<void>;
   updateDonation: (id: string, amount: number) => void;
 };
 
 const DonationsContext = createContext<DonationsContextType>({
   donations: [],
-  addDonation: () => {},
+  addDonation: async () => {},
   updateDonation: () => {},
 });
 
@@ -59,12 +60,44 @@ export const DonationsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     },
   ]);
 
-  const addDonation = (donation: Omit<Donation, 'id'>) => {
-    const newDonation: Donation = {
-      id: Math.random().toString(),
-      ...donation,
+  const addDonation = async (donationData: Omit<Donation, 'id' | 'raised'>) => {
+    const donationPayload = {
+      titulo: donationData.title,
+      subtitulo: donationData.subtitle,
+      descricao: donationData.description,
+      imagem_url: donationData.imageUri,
+      meta_doacoes: donationData.goal,
+      valor_levantado: 0,
+      fg_dinheiro: donationData.types.includes('Dinheiro'),
+      fg_alimentacao: donationData.types.includes('Alimentos'),
+      fg_vestuario: donationData.types.includes('Roupas'),
+      localizacao: {
+        latitude: donationData.location.latitude,
+        longitude: donationData.location.longitude,
+      },
     };
-    setDonations(prev => [...prev, newDonation]);
+
+    try {
+      const newDonationFromApi = await api.createDonation(donationPayload);
+
+      const newDonationForState: Donation = {
+        id: newDonationFromApi.id,
+        title: newDonationFromApi.titulo,
+        subtitle: newDonationFromApi.subtitulo,
+        raised: newDonationFromApi.valor_levantado,
+        goal: newDonationFromApi.meta_doacoes,
+        imageUri: newDonationFromApi.imagem_url,
+        description: newDonationFromApi.descricao,
+        location: newDonationFromApi.localizacao,
+        types: donationData.types, 
+      };
+      
+      setDonations(prev => [...prev, newDonationForState]);
+
+    } catch (error) {
+      console.error('Erro ao criar doação:', error);
+      throw error;
+    }
   };
 
   const updateDonation = (id: string, amount: number) => {

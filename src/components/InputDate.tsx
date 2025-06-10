@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 interface Props {
   icon: string;
@@ -13,29 +13,39 @@ interface Props {
 export default function InputDate({ icon, placeholder, value, onChange }: Props) {
   const [showPicker, setShowPicker] = useState(false);
 
-  const onChangeDate = (_event: any, selectedDate?: Date) => {
-    setShowPicker(Platform.OS === 'ios'); 
+  const onChangeDate = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowPicker(Platform.OS === 'ios');
+    
     if (selectedDate) {
-      const formatted = selectedDate.toISOString().split('T')[0]; 
-      onChange(formatted);
+      const formattedForState = selectedDate.toISOString().split('T')[0]; 
+      onChange(formattedForState);
     }
   };
+
+  const formatDateForDisplay = (dateString: string) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  const displayText = value ? formatDateForDisplay(value) : placeholder;
 
   return (
     <View style={styles.container}>
       <Ionicons name={icon as any} size={20} style={styles.icon} />
       <TouchableOpacity style={styles.touchable} onPress={() => setShowPicker(true)}>
         <Text style={[styles.text, !value && styles.placeholder]}>
-          {value || placeholder}
+          {displayText}
         </Text>
       </TouchableOpacity>
 
       {showPicker && (
         <DateTimePicker
-          value={value ? new Date(value) : new Date()}
+          value={value ? new Date(`${value}T00:00:00`) : new Date()}
           mode="date"
           display="default"
           onChange={onChangeDate}
+          maximumDate={new Date()} 
         />
       )}
     </View>
@@ -52,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     width: 355,
-    height:65
+    height: 65,
   },
   icon: {
     marginRight: 11, 

@@ -1,97 +1,108 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  Clipboard,
-  Alert,
-} from 'react-native';
+import React, { useState } from 'react';
+import {  View,  Text, Image,  TouchableOpacity,  SafeAreaView,  StatusBar,  Clipboard,  Alert,  ScrollView,  ActivityIndicator,} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {styles} from '../styles/DonationPix';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import  styles  from '../styles/DonationPix';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
-import { useDonations } from '../context/DonationsContext';
-import { useNavigation } from '@react-navigation/native';
+import { api } from '../services/api';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DonationPix'>;
 
-// ...importações mantidas
+const DonationPix: React.FC<Props> = ({ route, navigation }) => {
+  const { donationId, donationAmount, donationName } = route.params;
+  const insets = useSafeAreaInsets();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-const DonationPix: React.FC<Props> = ({ route }) => {
-  const { donationAmount = '5,00', donationName = 'MÉDICOS SEM FRONTEIRAS', donationId } = route.params;
-  const navigation = useNavigation();
-  const { updateDonation } = useDonations();
-
-  const pixCode = '00020101021226830014br.gov.bcb.pix2561api.pagseguro.com/pix/v2/E';
+  const pixCode = '00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540510.005802BR5925Fulano de Tal6009SAO PAULO62070503***6304E3E7';
 
   const handleCopyCode = () => {
     Clipboard.setString(pixCode);
-    Alert.alert('Código copiado!', 'O código PIX foi copiado para a área de transferência.');
+    Alert.alert('Código Copiado!', 'O código PIX foi copiado para sua área de transferência.');
   };
 
-  const handleConfirmDonation = () => {
-    const parsedAmount = parseFloat(donationAmount.replace(',', '.'));
-    if (!isNaN(parsedAmount)) {
-      updateDonation(donationId, parsedAmount);
-      Alert.alert('Obrigado!', 'Sua doação foi registrada com sucesso.');
-      navigation.navigate('SearchDonation' as never);
-    } else {
-      Alert.alert('Erro', 'Valor inválido de doação.');
+  const handleConfirmDonation = async () => {
+    setIsSubmitting(true);
+    const parsedAmount = parseFloat(donationAmount);
+
+    try {
+      const currentDonation = await api.getDonationById(Number(donationId));
+      const newRaisedAmount = currentDonation.valor_levantado + parsedAmount;
+
+      await api.updateDonation(Number(donationId), {
+        valor_levantado: newRaisedAmount,
+      });
+
+      Alert.alert(
+        'Doação Registrada!',
+        'Muito obrigado pela sua contribuição. Sua ajuda faz a diferença.',
+        [
+          { text: 'OK', onPress: () => navigation.navigate('SearchDonation') }
+        ]
+      );
+
+    } catch (error: any) {
+      console.error('Erro ao confirmar doação:', error);
+      Alert.alert('Erro', error.message || 'Não foi possível registrar a doação. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+  const formattedAmount = (parseFloat(donationAmount) || 0).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+  });
 
+  return (
+    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: 0 }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F2F5FA" />
+      
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-          <Text style={styles.cancelText}>Voltar</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.logoContainer}>
-        <View style={styles.logoWrapper}>
-          <Text style={styles.logoSymbol}>≡</Text>
+      <ScrollView 
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>Pague com Pix para ajudar</Text>
+        <Text style={styles.subtitle}>{donationName}</Text>
+        <Text style={styles.amountText}>R$ {formattedAmount}</Text>
+        
+        <View style={styles.card}>
+          <Image
+            source={require('../../assets/qr-code.png')}
+            style={styles.qrCode}
+            resizeMode="contain"
+          />
+          <Text style={styles.instructionsTitle}>Ou use o Copia e Cola</Text>
+          <TouchableOpacity style={styles.copyButton} onPress={handleCopyCode}>
+            <Ionicons name="copy-outline" size={18} color="#475569" />
+            <Text style={styles.copyButtonText}>COPIAR CÓDIGO PIX</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.organizationName}>{donationName}</Text>
+
+        <Text style={styles.instructionsTitle}>Instruções</Text>
+        <Text style={styles.instructionText}>1. Abra o app do seu banco e acesse a área Pix.</Text>
+        <Text style={styles.instructionText}>2. Escolha a opção "Pix Copia e Cola" ou "Ler QR Code".</Text>
+        <Text style={styles.instructionText}>3. Após pagar, clique no botão abaixo para confirmar.</Text>
+      </ScrollView>
+
+      <View style={[styles.footer, { paddingBottom: insets.bottom > 0 ? insets.bottom : 20 }]}>
+        <TouchableOpacity 
+          style={[styles.confirmButton, isSubmitting && styles.confirmButtonDisabled]} 
+          onPress={handleConfirmDonation}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.confirmButtonText}>JÁ FIZ O PAGAMENTO</Text>
+          )}
+        </TouchableOpacity>
       </View>
-
-      <View style={styles.amountContainer}>
-        <Text style={styles.currencySymbol}>R$</Text>
-        <Text style={styles.amountText}>{donationAmount}</Text>
-      </View>
-
-      <View style={styles.qrCodeContainer}>
-        <Image
-          source={require('../../assets/qr-code.png')}
-          style={styles.qrCode}
-          resizeMode="contain"
-        />
-      </View>
-
-      <TouchableOpacity style={styles.copyButton} onPress={handleCopyCode}>
-        <Ionicons name="copy-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-        <Text style={styles.copyButtonText}>COPIAR CÓDIGO</Text>
-      </TouchableOpacity>
-
-      <View style={styles.pixCodeContainer}>
-        <Text style={styles.pixCodeText}>{pixCode}</Text>
-      </View>
-
-      <View style={styles.instructionsContainer}>
-        <Text style={styles.instructionText}>1. Acesse o aplicativo do seu banco.</Text>
-        <Text style={styles.instructionText}>2. Escolha pagar com Pix Copia e Cola.</Text>
-        <Text style={styles.instructionText}>3. Copie e cole o código e confirme o pagamento.</Text>
-      </View>
-
-      <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmDonation}>
-        <Text style={styles.confirmButtonText}>MARCAR COMO DOADO</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };

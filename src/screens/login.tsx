@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import {  Image,  View,  Text,  TouchableOpacity,  Alert,  Pressable,  Modal,  TextInput,} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  Image,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Pressable,
+  Modal,
+  TextInput,
+} from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useNavigation } from '@react-navigation/native';
@@ -7,56 +16,89 @@ import styles from '../styles/login';
 
 import Input from '../components/Input';
 import InputPassword from '../components/InputPassword';
+import { useAuth } from '../context/AuthContext';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
 
-const ImgAdm = require('../../assets/ImgAdm.png');
-
-import { useAuth } from '../context/AuthContext';
-
-type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+import { api } from '../services/api';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const fakeUsers = [
-  {
-    name: 'Administrador',
-    email: 'adm@t.com',
-    password: '123456',
-    nascimento: new Date('1985-06-10'),
-    imagem: Image.resolveAssetSource(ImgAdm).uri,
-    tipo: 'receber',
-  },
-];
+type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
   const navigation = useNavigation<NavigationProps>();
-  const { setUser } = useAuth();
+  const { login, setUser } = useAuth(); 
 
-  const [email, setEmail] = useState('');
+  const [loginInput, setLoginInput] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState('');
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: 'SEU_CLIENT_ID_DO_GOOGLE',
+        clientId: 'SEU_WEB_CLIENT_ID_DO_GOOGLE_AQUI',
+
   });
 
-  const validarLogin = () => {
-    const user = fakeUsers.find(u => u.email === email);
-    if (!user) {
-      setError('E-mail não encontrado');
-    } else if (user.password !== senha) {
-      setError('Senha incorreta');
-    } else {
-      setError('');
-      setUser(user); 
+  const validarLogin = async () => {
+    if (!loginInput || !senha) {
+      setError('Preencha todos os campos.');
+      return;
+    }
+    setError('');
+
+    const result = await login(loginInput, senha);
+
+    if (result.success) {
       Alert.alert('Login realizado com sucesso!');
       navigation.navigate('SearchDonation');
+    } else {
+      setError(result.message || 'Erro desconhecido');
     }
   };
+  
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await promptAsync();
+      if (result?.type === 'success' && result.authentication?.accessToken) {
+        const userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+          headers: { Authorization: `Bearer ${result.authentication.accessToken}` },
+        });
+        const userInfo = await userInfoResponse.json();
+        
+        try {
+          const usuarioExistente = await api.getUserByEmail(userInfo.email);
+          setUser(usuarioExistente);
+          Alert.alert('Login com Google realizado!');
+          navigation.navigate('SearchDonation');
+        } catch (e) {
+          console.log('Usuário não encontrado, cadastrando com Google...');
+          const novoUsuario = {
+            nome: userInfo.name,
+            email: userInfo.email,
+            senha: Math.random().toString(36).slice(-10),
+            dt_nascimento: '1990-01-01',
+            img_usuario: userInfo.picture,
+            tp_usuario: 2,
+          };
+
+          const usuarioCriado = await api.createUser(novoUsuario);
+          setUser(usuarioCriado);
+          Alert.alert('Bem-vindo!', 'Sua conta foi criada com o Google.');
+          navigation.navigate('SearchDonation');
+        }
+      } else {
+         if (result?.type === 'error') throw new Error(result.error?.message);
+         if (result?.type === 'cancel') Alert.alert('Aviso', 'Login com Google cancelado.');
+      }
+    } catch (error: any) {
+      Alert.alert('Erro no Login com Google', error.message || 'Não foi possível autenticar.');
+      console.error("Erro Google:", error);
+    }
+  };
+
 
   const goToRegister = () => {
     navigation.navigate('Register');
@@ -78,22 +120,17 @@ export default function LoginScreen() {
 
       <Input
         icon="user"
-        placeholder="Seu login/email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Seu login ou e-mail"
+        value={loginInput}
+        onChangeText={setLoginInput}
       />
-      {error === 'E-mail não encontrado' && (
-        <Text style={styles.error}>{error}</Text>
-      )}
 
       <InputPassword
         placeholder="Sua senha"
         value={senha}
         onChangeText={setSenha}
       />
-      {error === 'Senha incorreta' && (
-        <Text style={styles.error}>{error}</Text>
-      )}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <Text style={styles.forgot}>Esqueceu a senha?</Text>
@@ -107,7 +144,7 @@ export default function LoginScreen() {
 
       <TouchableOpacity
         style={styles.googleButton}
-        onPress={() => promptAsync()}
+        onPress={handleGoogleLogin}
         disabled={!request}
       >
         <Image
@@ -123,7 +160,7 @@ export default function LoginScreen() {
           <Text style={styles.register}>Registrar</Text>
         </Pressable>
       </View>
-
+      
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -143,11 +180,11 @@ export default function LoginScreen() {
             />
 
             <TouchableOpacity style={styles.button} onPress={handleSendRecovery}>
-              <Text style={styles.buttonText}>Enviar recuperação de senha</Text>
+              <Text style={styles.buttonText}>Enviar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={[styles.forgot, { textAlign: 'center', marginTop: 10 }]}>Fechar</Text>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={{marginTop: 15}}>
+              <Text style={[styles.forgot, { textAlign: 'center' }]}>Fechar</Text>
             </TouchableOpacity>
           </View>
         </View>

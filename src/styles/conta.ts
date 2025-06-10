@@ -87,5 +87,17 @@ export default StyleSheet.create({
   borderRadius: 48,
   backgroundColor: '#fff',
 },
+profileDate: {
+  color: '#ccc',
+  fontSize: 13,
+  marginTop: 2,
+},
+
+profileType: {
+  color: '#ccc',
+  fontSize: 13,
+  marginTop: 2,
+},
+
 
 });

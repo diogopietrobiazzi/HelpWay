@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {  View,  Text,  ScrollView,  TouchableOpacity,  Image,  KeyboardAvoidingView,  Platform,  Keyboard,TouchableWithoutFeedback,} from 'react-native';
+import {  View,  Text,  ScrollView,  TouchableOpacity,  Image,  KeyboardAvoidingView,  Platform,  Keyboard,  TouchableWithoutFeedback,  Alert,} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,6 +12,7 @@ import InputPassword from '../components/InputPassword';
 import Button from '../components/Button';
 
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import styles from '../styles/register';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AlterarDados'>;
@@ -20,14 +21,15 @@ export default function AlterarDados({ navigation }: Props) {
   const { user, setUser } = useAuth();
 
   const [email, setEmail] = useState(user?.email || '');
-  const [nome, setNome] = useState(user?.name || '');
+  const [nome, setNome] = useState(user?.nome || '');
   const [nascimento, setNascimento] = useState(
-    user?.nascimento?.toISOString().split('T')[0] || ''
+    user?.dt_nascimento ? new Date(user.dt_nascimento).toISOString().split('T')[0] : ''
   );
-  const [imagemUri, setImagemUri] = useState<string | null>(user?.imagem || null);
-  const [tipoUsuario, setTipoUsuario] = useState<'doar' | 'receber'>(user?.tipo as any);
+  const [imagemUri, setImagemUri] = useState<string | null>(user?.img_usuario || null);
+  const [tipoUsuario, setTipoUsuario] = useState<'doar' | 'receber'>(
+    user?.tp_usuario === 1 ? 'doar' : 'receber'
+  );
   const [tecladoAtivo, setTecladoAtivo] = useState(false);
-
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
@@ -47,7 +49,7 @@ export default function AlterarDados({ navigation }: Props) {
   async function selecionarImagem() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('Permissão para acessar imagens negada.');
+      Alert.alert('Atenção', 'Permissão para acessar a galeria de imagens é necessária.');
       return;
     }
 
@@ -63,38 +65,49 @@ export default function AlterarDados({ navigation }: Props) {
     }
   }
 
-  function handleSalvar() {
-    if (mostrarSenha) {
-      if (senhaAtual !== user?.password) {
-        setErroSenha('Senha atual incorreta.');
-        return;
-      }
+  async function handleSalvar() {
+    if (!user) return;
 
+    if (mostrarSenha) {
       if (novaSenha !== confirmarNovaSenha) {
         setErroSenha('As novas senhas não coincidem.');
         return;
       }
-
-      if (!novaSenha || novaSenha.length < 6) {
+      if (senhaAtual && (!novaSenha || novaSenha.length < 6)) {
         setErroSenha('A nova senha deve ter pelo menos 6 caracteres.');
         return;
       }
-
       setErroSenha('');
     }
 
-    setUser({
-      ...user!,
+    if (!nome || !email || !nascimento) {
+      Alert.alert('Atenção', 'Nome, email e data de nascimento são obrigatórios.');
+      return;
+    }
+    
+    const dadosParaAtualizar = {
+      nome,
       email,
-      name: nome,
-      nascimento: new Date(nascimento),
-      imagem: imagemUri || '',
-      tipo: tipoUsuario,
-      password: mostrarSenha ? novaSenha : user!.password,
-    });
+      dt_nascimento: new Date(nascimento).toISOString(),
+      img_usuario: imagemUri || user.img_usuario,
+      tp_usuario: tipoUsuario === 'doar' ? 1 : 2,
+      ...(mostrarSenha && senhaAtual && {
+        senha_atual: senhaAtual,
+        nova_senha: novaSenha,
+      }),
+    };
 
-    alert('Dados atualizados com sucesso!');
-    navigation.navigate('Conta'); 
+    try {
+      const usuarioAtualizado = await api.updateUser(user.id, dadosParaAtualizar);
+
+      setUser(usuarioAtualizado);
+
+      Alert.alert('Sucesso', 'Dados atualizados com sucesso!');
+      navigation.navigate('Conta');
+    } catch (error: any) {
+      console.error('Erro ao atualizar dados:', error);
+      Alert.alert('Erro', error.message || 'Não foi possível atualizar os dados.');
+    }
   }
 
   return (
@@ -126,10 +139,25 @@ export default function AlterarDados({ navigation }: Props) {
             </TouchableOpacity>
 
             <Input icon="user" placeholder="Nome Completo" value={nome} onChangeText={setNome} />
-            <InputDate icon="calendar" placeholder="Data de Nascimento" value={nascimento} onChange={setNascimento} />
-            <Input icon="envelope" placeholder="Email" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
+            <InputDate
+              icon="calendar"
+              placeholder="Data de Nascimento"
+              value={nascimento}
+              onChange={setNascimento}
+            />
+            <Input
+              icon="envelope"
+              placeholder="Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
 
-            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={{ marginBottom: 10 }}>
+            <TouchableOpacity
+              onPress={() => setMostrarSenha(!mostrarSenha)}
+              style={{ marginBottom: 10, paddingVertical: 5 }}
+            >
               <Text style={{ color: '#007AFF', textAlign: 'center' }}>
                 {mostrarSenha ? 'Cancelar troca de senha' : 'Trocar Senha'}
               </Text>
@@ -137,9 +165,21 @@ export default function AlterarDados({ navigation }: Props) {
 
             {mostrarSenha && (
               <>
-                <InputPassword placeholder="Senha Atual" value={senhaAtual} onChangeText={setSenhaAtual} />
-                <InputPassword placeholder="Nova Senha" value={novaSenha} onChangeText={setNovaSenha} />
-                <InputPassword placeholder="Confirmar Nova Senha" value={confirmarNovaSenha} onChangeText={setConfirmarNovaSenha} />
+                <InputPassword
+                  placeholder="Senha Atual"
+                  value={senhaAtual}
+                  onChangeText={setSenhaAtual}
+                />
+                <InputPassword
+                  placeholder="Nova Senha"
+                  value={novaSenha}
+                  onChangeText={setNovaSenha}
+                />
+                <InputPassword
+                  placeholder="Confirmar Nova Senha"
+                  value={confirmarNovaSenha}
+                  onChangeText={setConfirmarNovaSenha}
+                />
                 {erroSenha ? <Text style={styles.error}>{erroSenha}</Text> : null}
               </>
             )}
@@ -147,10 +187,12 @@ export default function AlterarDados({ navigation }: Props) {
             <Text style={styles.subTitle}>Tipo de usuário</Text>
             <TouchableOpacity
               style={styles.toggleUniqueButton}
-              onPress={() => setTipoUsuario(prev => (prev === 'doar' ? 'receber' : 'doar'))}
+              onPress={() =>
+                setTipoUsuario((prev) => (prev === 'doar' ? 'receber' : 'doar'))
+              }
             >
               <Text style={styles.toggleUniqueButtonText}>
-                {tipoUsuario === 'doar' ? 'Doar' : 'Receber'}
+                {tipoUsuario === 'doar' ? 'Quero Ajudar' : 'Preciso de Ajuda'}
               </Text>
             </TouchableOpacity>
 
