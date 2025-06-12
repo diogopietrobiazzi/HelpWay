@@ -1,30 +1,52 @@
-import React, { useState } from 'react';
-import {  View,  Text,  TouchableOpacity,  ScrollView,Image,  KeyboardAvoidingView,  Platform,  TouchableWithoutFeedback,  Keyboard,  Alert,} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
-import type { LocationObjectCoords } from 'expo-location';
-
 import InputText from '../components/InputText';
 import Input from '../components/Input';
 import { RootStackParamList } from '../navigation';
 import { colors } from '../styles';
 import styles from '../styles/addDonation';
 import { api } from '../services/api';
+import { useLocation } from '../context/LocationContext';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'AddDonation'>;
 
 export default function AddDonationScreen() {
   const navigation = useNavigation<NavProp>();
+  const { selectedLocation, setSelectedLocation } = useLocation();
 
   const [title, setTitle] = useState('');
   const [need, setNeed] = useState('');
   const [responsible, setResponsible] = useState('');
   const [types, setTypes] = useState<string[]>([]);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    if (selectedLocation) {
+      setLocation({
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
+      });
+      setSelectedLocation(null);
+    }
+  }, [selectedLocation, setSelectedLocation]);
 
   function toggleType(type: string) {
     setTypes(prev =>
@@ -33,33 +55,24 @@ export default function AddDonationScreen() {
   }
 
   async function pickImage() {
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.5 });
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 0.5,
+      base64: true,
+      allowsEditing: true,
+      aspect: [1,1]
+    });
+
     if (!result.canceled && result.assets.length > 0) {
       setImageUri(result.assets[0].uri);
+      setImageBase64(result.assets[0].base64 ?? null);
     }
   }
 
   function handleLocationSelect() {
-    navigation.navigate('Map', {
-      onLocationSelected: (coords: LocationObjectCoords) => {
-        console.log('--- Coordenadas recebidas do mapa:', coords, '---'); 
-        
-        if (coords && typeof coords.latitude === 'number' && typeof coords.longitude === 'number') {
-          setLocation({
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-          });
-        } else {
-          console.error('Dados de coordenadas inválidos recebidos do mapa.');
-          Alert.alert('Erro', 'Ocorreu um erro ao selecionar a localização.');
-        }
-      },
-    });
-  }
+  navigation.navigate('Map', { isSelectionMode: true });
+}
 
   async function handleSubmit() {
-    console.log("--- 1. Botão 'Criar Doação' pressionado ---");
-
     if (!title || !need || !responsible || !types.length || !description) {
       Alert.alert('Atenção', 'Preencha todos os campos obrigatórios.');
       return;
@@ -69,7 +82,7 @@ export default function AddDonationScreen() {
       titulo: title,
       subtitulo: responsible,
       descricao: description,
-      imagem_url: imageUri ?? 'https://via.placeholder.com/300x200.png?text=Doacao',
+      imagem_base64: imageBase64 || '',
       meta_doacoes: Number(need),
       valor_levantado: 0,
       fg_dinheiro: types.includes('Dinheiro'),
@@ -77,32 +90,21 @@ export default function AddDonationScreen() {
       fg_vestuario: types.includes('Utensílios/Vestimenta'),
     };
 
-    console.log("--- 2. Dados da doação (sem localização) prontos para envio:", donationData);
-    if(location) {
-      console.log("--- Localização a ser enviada:", location);
-    }
-
     try {
-      console.log("--- 3. Tentando chamar api.createDonation... ---");
       const createdDonation = await api.createDonation(donationData);
-      console.log("--- 4. SUCESSO! Doação criada com ID:", createdDonation.id, "---");
 
       if (location) {
-        console.log("--- 5. Tentando chamar api.updateDonationLocation... ---");
         await api.updateDonationLocation(createdDonation.id, location);
-        console.log("--- 6. SUCESSO! Localização adicionada. ---");
       }
 
-      console.log("--- 7. Exibindo alerta de sucesso e fechando a tela. ---");
       Alert.alert('Sucesso!', 'Doação criada com sucesso!');
       navigation.goBack();
-
     } catch (error: any) {
-      console.error("--- X. ERRO CAPTURADO! ---");
       console.error(error);
       Alert.alert('Erro', error.message || 'Não foi possível criar a doação.');
     }
   }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

@@ -15,7 +15,7 @@ type DonationAPI = {
   titulo: string;
   subtitulo: string;
   descricao: string;
-  imagem_url: string;
+  imagem_base64: string;
   meta_doacoes: number;
   valor_levantado: number;
   fg_dinheiro: boolean;
@@ -65,7 +65,7 @@ export default function DonationDetailScreen({ route, navigation }: Props) {
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ fontSize: 16, color: '#666' }}>Dados da doação indisponíveis.</Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
-            <Text style={{color: '#4B4DED'}}>Voltar</Text>
+          <Text style={{ color: '#4B4DED' }}>Voltar</Text>
         </TouchableOpacity>
       </View>
     );
@@ -75,8 +75,16 @@ export default function DonationDetailScreen({ route, navigation }: Props) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: apiData.imagem_url }} style={styles.mainImage} resizeMode="cover" />
-      
+      {apiData.imagem_base64 ? (
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${apiData.imagem_base64}` }}
+          style={styles.mainImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={[styles.mainImage, { backgroundColor: '#eee' }]} />
+      )}
+
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
@@ -89,23 +97,23 @@ export default function DonationDetailScreen({ route, navigation }: Props) {
         <Text style={styles.subtitle}>{apiData.subtitulo}</Text>
 
         <View style={styles.tagContainer}>
-            {apiData.fg_dinheiro && <View style={styles.tag}><Text style={styles.tagText}>DINHEIRO</Text></View>}
-            {apiData.fg_alimentacao && <View style={styles.tag}><Text style={styles.tagText}>ALIMENTOS</Text></View>}
-            {apiData.fg_vestuario && <View style={styles.tag}><Text style={styles.tagText}>VESTUÁRIO</Text></View>}
+          {apiData.fg_dinheiro && <View style={styles.tag}><Text style={styles.tagText}>DINHEIRO</Text></View>}
+          {apiData.fg_alimentacao && <View style={styles.tag}><Text style={styles.tagText}>ALIMENTOS</Text></View>}
+          {apiData.fg_vestuario && <View style={styles.tag}><Text style={styles.tagText}>VESTUÁRIO</Text></View>}
         </View>
 
         <Text style={styles.description}>{apiData.descricao}</Text>
 
         <View style={styles.progressContainer}>
-            <View style={styles.progressInfo}>
-                <Text style={styles.raisedText}>
-                    R$ {apiData.valor_levantado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </Text>
-                <Text style={styles.goalText}>
-                    Arrecadado de R$ {apiData.meta_doacoes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </Text>
-            </View>
-            <ProgressBar progress={progress} />
+          <View style={styles.progressInfo}>
+            <Text style={styles.raisedText}>
+              R$ {apiData.valor_levantado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </Text>
+            <Text style={styles.goalText}>
+              Arrecadado de R$ {apiData.meta_doacoes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </Text>
+          </View>
+          <ProgressBar progress={progress} />
         </View>
 
         <PrimaryButton title="QUERO AJUDAR" onPress={handleDonate} />

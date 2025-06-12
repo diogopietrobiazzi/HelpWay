@@ -76,5 +76,37 @@ export const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'white',
   },
-
+  selectionContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+  },
+  confirmButton: {
+    backgroundColor: '#28a745', 
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  disabledButton: {
+    backgroundColor: '#a9a9a9',
+  },
+  confirmButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    padding: 6,
+    elevation: 5,
+  },
 });

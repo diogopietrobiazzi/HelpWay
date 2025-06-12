@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import MapView, { Marker, Region, Polyline } from 'react-native-maps';
+import MapView, { Marker, Region, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import TabBar from '../components/TabBar';
@@ -11,6 +11,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
 import type { LocationObjectCoords } from 'expo-location';
 import { api } from '../services/api';
+import { useLocation } from '../context/LocationContext';
 
 type ApiDonation = {
   id: string;
@@ -38,11 +39,13 @@ const getDistanceFromLatLonInKm = (
 export default function Map() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'Map'>>();
-  const onLocationSelected = route.params?.onLocationSelected;
   const insets = useSafeAreaInsets();
 
-  const mapRef = useRef<MapView>(null);
+  const { setSelectedLocation } = useLocation();
+  const isSelectionMode = route.params?.isSelectionMode;
+  const [selectedPin, setSelectedPin] = useState<LocationObjectCoords | null>(null);
 
+  const mapRef = useRef<MapView>(null);
   const [location, setLocation] = useState<LocationObjectCoords | null>(null);
   const [region, setRegion] = useState<Region | null>(null);
   const [apiDonations, setApiDonations] = useState<ApiDonation[]>([]);
@@ -90,8 +93,10 @@ export default function Map() {
         Alert.alert('Erro', 'Não foi possível carregar as doações.');
       }
     };
-    fetchDonations();
-  }, []);
+    if (!isSelectionMode) {
+      fetchDonations();
+    }
+  }, [isSelectionMode]);
 
   useEffect(() => {
     if (location && apiDonations.length) {
@@ -113,12 +118,8 @@ export default function Map() {
       setActiveRouteDonationId(null);
       return;
     }
-
     try {
-        const url = `http://router.project-osrm.org/route/v1/driving/` +
-        `${location.longitude},${location.latitude};` +
-        `${d.location.longitude},${d.location.latitude}?overview=full&geometries=geojson`;
-        
+        const url = `http://router.project-osrm.org/route/v1/driving/${location.longitude},${location.latitude};${d.location.longitude},${d.location.latitude}?overview=full&geometries=geojson`;
         const resp = await fetch(url);
         const json = await resp.json();
         
@@ -156,6 +157,20 @@ export default function Map() {
     }
   };
 
+  const handleMapPress = (e: any) => {
+    if (isSelectionMode) {
+      const coords = e.nativeEvent.coordinate;
+      setSelectedPin(coords);
+    }
+  };
+
+  const handleConfirmSelection = () => {
+    if (selectedPin) {
+      setSelectedLocation(selectedPin);
+      navigation.goBack();
+    }
+  };
+
   if (!region) {
     return (
         <View style={styles.loadingContainer}>
@@ -168,18 +183,13 @@ export default function Map() {
     <View style={styles.container}>
       <MapView
         ref={mapRef}
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={region}
         showsUserLocation
-        onPress={e => {
-          if (onLocationSelected) {
-            const coords = e.nativeEvent.coordinate;
-            onLocationSelected({ ...coords, accuracy: null, altitude: null, heading: null, speed: null, altitudeAccuracy: null });
-            navigation.goBack();
-          }
-        }}
+        onPress={handleMapPress}
       >
-        {donationsWithDistance.map(d => (
+        {!isSelectionMode && donationsWithDistance.map(d => (
           <Marker
             key={d.id}
             coordinate={d.location}
@@ -187,10 +197,31 @@ export default function Map() {
             pinColor={activeRouteDonationId === d.id ? 'tomato' : 'indigo'}
           />
         ))}
+
+        {isSelectionMode && selectedPin && (
+          <Marker coordinate={selectedPin} pinColor="green" title="Local Selecionado" />
+        )}
+
         {routeCoords.length > 0 && <Polyline coordinates={routeCoords} strokeWidth={5} strokeColor="#4B4DED" />}
       </MapView>
       
-      {!onLocationSelected && (
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="#333" />
+      </TouchableOpacity>
+
+      {isSelectionMode ? (
+        <View style={styles.selectionContainer}>
+          <TouchableOpacity
+            style={[styles.confirmButton, !selectedPin && styles.disabledButton]}
+            onPress={handleConfirmSelection}
+            disabled={!selectedPin}
+          >
+            <Text style={styles.confirmButtonText}>
+              {selectedPin ? 'Confirmar Localização' : 'Toque no mapa para selecionar'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
         <>
           <ScrollView
             horizontal

@@ -15,10 +15,10 @@ import SegmentControl from '../components/SegmentControl';
 import DonationCard from '../components/DonationCard';
 import TabBar from '../components/TabBar';
 
-import {styles} from '../styles/searchDonation';
+import { styles } from '../styles/searchDonation';
 import { RootStackParamList } from '../navigation';
 import { api } from '../services/api';
-import { type Donation } from '../context/DonationsContext'; 
+import { type Donation } from '../context/DonationsContext';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'SearchDonation'>;
 type FilterType = 'REGIONAL' | 'NACIONAL' | 'MUNDIAL';
@@ -33,7 +33,7 @@ export default function SearchDonationScreen() {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterType>('MUNDIAL');
   const [modalVisible, setModalVisible] = useState(false);
-  
+
   const [distanceFilter, setDistanceFilter] = useState(5000);
   const [sliderMaximumValue, setSliderMaximumValue] = useState(5000);
 
@@ -66,7 +66,7 @@ export default function SearchDonationScreen() {
           subtitle: apiDonation.subtitulo,
           raised: apiDonation.valor_levantado,
           goal: apiDonation.meta_doacoes,
-          imageUri: apiDonation.imagem_url,
+          imageUri: apiDonation.imagem_base64,
           description: apiDonation.descricao,
           types: [
             apiDonation.fg_dinheiro && 'Dinheiro',
@@ -75,9 +75,9 @@ export default function SearchDonationScreen() {
           ].filter(Boolean) as string[],
           location: apiDonation.localizacao
             ? {
-                latitude: apiDonation.localizacao.latitude,
-                longitude: apiDonation.localizacao.longitude,
-              }
+              latitude: apiDonation.localizacao.latitude,
+              longitude: apiDonation.localizacao.longitude,
+            }
             : { latitude: 0, longitude: 0 },
         }));
         setAllDonations(formattedDonations);
@@ -108,7 +108,7 @@ export default function SearchDonationScreen() {
       const distances = allDonations
         .filter(d => d.location.latitude !== 0)
         .map(d => getDistanceKm(userLocation.latitude, userLocation.longitude, d.location.latitude, d.location.longitude));
-      
+
       if (distances.length > 0) {
         const furthestDonation = Math.max(...distances);
         const newMax = Math.ceil(furthestDonation / 100) * 100;
@@ -140,13 +140,13 @@ export default function SearchDonationScreen() {
       const distance =
         userLocation && donation.location?.latitude !== 0
           ? getDistanceKm(
-              userLocation.latitude,
-              userLocation.longitude,
-              donation.location.latitude,
-              donation.location.longitude
-            )
+            userLocation.latitude,
+            userLocation.longitude,
+            donation.location.latitude,
+            donation.location.longitude
+          )
           : Infinity;
-      
+
       const withinDistance = distance <= distanceFilter;
 
       const matchesType =
@@ -174,9 +174,9 @@ export default function SearchDonationScreen() {
           selected={activeFilter}
           onSelect={(value) => handleFilterChange(value as FilterType)}
         />
-        
+
         {isLoading ? (
-          <ActivityIndicator size="large" color="#4F6AF6" style={{ flex: 1 }}/>
+          <ActivityIndicator size="large" color="#4F6AF6" style={{ flex: 1 }} />
         ) : (
           <FlatList
             data={filteredDonations}
@@ -186,7 +186,7 @@ export default function SearchDonationScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => navigation.navigate('DonationDetail', { donation: item })}>
                 <DonationCard
-                  imageUri={item.imageUri}
+                  imageUri={item.imageUri ? `data:image/jpeg;base64,${item.imageUri}` : ''}
                   title={item.title}
                   subtitle={item.subtitle}
                   raised={item.raised}
@@ -203,11 +203,11 @@ export default function SearchDonationScreen() {
           />
         )}
       </KeyboardAvoidingView>
-      
+
       <View style={[styles.tabBarContainer, { paddingBottom: insets.bottom }]}>
         <TabBar
           tabs={[
-            { icon: 'search', label: 'DESCUBRA', onPress: () => {} },
+            { icon: 'search', label: 'DESCUBRA', onPress: () => { } },
             { icon: 'map-pin', label: 'MAPA', onPress: () => navigation.navigate('Map' as never) },
             { icon: 'user', label: 'CONTA', onPress: () => navigation.navigate('Conta') },
           ]}
@@ -233,24 +233,24 @@ export default function SearchDonationScreen() {
 
             <Text style={styles.modalTitle}>Tipo de Doação</Text>
             <View style={styles.typeContainer}>
-                {donationTypes.map((type) => (
+              {donationTypes.map((type) => (
                 <TouchableOpacity
-                    key={type}
-                    onPress={() =>
+                  key={type}
+                  onPress={() =>
                     setSelectedTypes((prev) =>
-                        prev.includes(type)
+                      prev.includes(type)
                         ? prev.filter((t) => t !== type)
                         : [...prev, type]
                     )
-                    }
-                    style={[
-                        styles.typeButton,
-                        selectedTypes.includes(type) && styles.typeButtonSelected,
-                    ]}
+                  }
+                  style={[
+                    styles.typeButton,
+                    selectedTypes.includes(type) && styles.typeButtonSelected,
+                  ]}
                 >
-                    <Text style={[styles.typeButtonText, selectedTypes.includes(type) && styles.typeButtonTextSelected]}>{type}</Text>
+                  <Text style={[styles.typeButtonText, selectedTypes.includes(type) && styles.typeButtonTextSelected]}>{type}</Text>
                 </TouchableOpacity>
-                ))}
+              ))}
             </View>
 
             <TouchableOpacity

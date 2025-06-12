@@ -31,7 +31,7 @@ export type RootStackParamList = {
   Conta: undefined;
   AddDonation: undefined;
   Register: undefined;
-  Map: { onLocationSelected?: (coords: LocationObjectCoords) => void };
+  Map: { isSelectionMode?: boolean };
   AlterarDados: undefined;
   DonationPix: { donationAmount: string; donationName?: string; donationId: string };
   DonationPay: { donation: DonationType };

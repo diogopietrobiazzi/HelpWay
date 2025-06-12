@@ -13,7 +13,8 @@ type User = {
 
 type AuthContextData = {
   user: User | null;
-  setUser: (user: User | null) => void; 
+  passwordAuth: string | null;
+  setUser: (user: User | null) => void;
   logout: () => void;
   login: (
     emailOuId: string,
@@ -25,31 +26,38 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [passwordAuth, setPasswordAuth] = useState<string | null>(null);
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    setUser(null);
+    setPasswordAuth(null);
+  };
 
   const login = async (loginInput: string, senha: string) => {
-    if (!loginInput.includes('@')) {
-      return { success: false, message: 'Por favor, use seu email para fazer login.' };
-    }
-
     try {
-      const usuario: User = await api.getUserByEmail(loginInput);
+      let usuario: User;
 
+      if (loginInput.includes('@')) {
+        usuario = await api.getUserByEmail(loginInput);
+      } else {
+        usuario = await api.getUserByUsername(loginInput);
+      }
+      
       if (usuario && usuario.senha === senha) {
         setUser(usuario);
+        setPasswordAuth(senha);
         return { success: true };
       } else {
-        return { success: false, message: 'Email ou senha incorretos' };
+        return { success: false, message: 'Login ou senha incorretos' };
       }
     } catch (error: any) {
       console.error("Erro no login:", error);
-      return { success: false, message: 'Email não encontrado ou erro de conexão' };
+      return { success: false, message: 'Login ou senha incorretos' };
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, login }}>
+    <AuthContext.Provider value={{ user, passwordAuth, setUser, logout, login }}>
       {children}
     </AuthContext.Provider>
   );

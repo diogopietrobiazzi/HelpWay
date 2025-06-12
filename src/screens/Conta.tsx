@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -6,12 +6,12 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import { RootStackParamList } from '../navigation';
 import styles from '../styles/conta';
 import { colors } from '../styles';
@@ -23,7 +23,26 @@ type NavProp = NativeStackNavigationProp<RootStackParamList, 'Conta'>;
 export default function ContaScreen() {
   const navigation = useNavigation<NavProp>();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigation.replace('Login');
+    }
+  }, [user, navigation]);
+
+  const handleLogout = () => {
+    logout();
+    navigation.replace('Login');
+  };
+
+  if (!user) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,13 +54,13 @@ export default function ContaScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.profileCard, { marginTop: 24 }]}>
-          {user?.img_usuario ? (
-            <Image source={{ uri: user.img_usuario }} style={styles.profileImage} />
+          {user.img_usuario ? (
+            <Image source={{ uri: `data:image/jpeg;base64,${user.img_usuario}` }} style={styles.profileImage} />
           ) : (
             <Feather name="user" size={48} color="#fff" />
           )}
           <View style={styles.profileText}>
-            <Text style={styles.profileName}>{user?.nome}</Text>
+            <Text style={styles.profileName}>{user.nome}</Text>
           </View>
         </View>
 
@@ -75,7 +94,7 @@ export default function ContaScreen() {
 
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => navigation.navigate('Login')}
+            onPress={handleLogout}
           >
             <Feather name="log-out" size={24} color={colors.primary} />
             <Text style={[styles.menuTitle, { flex: 1 }, { marginHorizontal: 12 }]}>
@@ -85,7 +104,7 @@ export default function ContaScreen() {
           </TouchableOpacity>
         </View>
 
-        {user?.tp_usuario === 2 && (
+        {user.tp_usuario === 2 && (
           <>
             <Text style={styles.sectionHeader}>DOADOR</Text>
             <View style={styles.menuSection}>
