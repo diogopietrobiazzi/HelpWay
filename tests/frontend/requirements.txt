@@ -1,0 +1,4 @@
+robotframework-appiumlibrary>=2.1.0
+robotframework>=7.3.1
+robotframework-tidy>=4.17.0
+robotframework-robocop>=6.4.0
